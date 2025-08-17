@@ -74,6 +74,7 @@
 
 .btnPrimary:hover {
   background-color: var(--color-primary-dark);
+  color: white;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -87,6 +88,7 @@
 .btnSecondary:hover {
   background-color: var(--color-bg-secondary);
   border-color: var(--color-primary);
+  color: var(--color-text);
   transform: translateY(-2px);
 }
 
