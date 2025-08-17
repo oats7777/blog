@@ -1,0 +1,141 @@
+.postsMain {
+  padding: 2rem 0 4rem;
+  min-height: 70vh;
+}
+
+.postsHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.postsTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.postsDescription {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+}
+
+.postsLayout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 3rem;
+}
+
+/* 사이드바 */
+.postsSidebar {
+  background-color: var(--color-bg-secondary);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  height: fit-content;
+  position: sticky;
+  top: 6rem;
+}
+
+.sidebarSection h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.categoryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryList li {
+  margin-bottom: 0.5rem;
+}
+
+.categoryLink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-normal);
+}
+
+.categoryLink:hover,
+.categoryLink.active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.count {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* 포스트 목록 */
+.postsContent {
+  min-height: 400px;
+}
+
+.postsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.noPosts {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+}
+
+.noPosts h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.noPosts p {
+  font-size: 1.1rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .postsMain {
+    padding: 1rem 0 3rem;
+  }
+
+  .postsTitle {
+    font-size: 2rem;
+  }
+
+  .postsLayout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .postsSidebar {
+    position: static;
+    padding: 1.5rem;
+  }
+
+  .postsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .noPosts {
+    padding: 3rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .postsGrid {
+    gap: 1rem;
+  }
+}

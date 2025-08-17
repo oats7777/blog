@@ -1,0 +1,121 @@
+.card {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.cardContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.category {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 1rem;
+  width: fit-content;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+  transition: color var(--transition-normal);
+}
+
+.cardLink:hover .title {
+  color: var(--color-primary);
+}
+
+.description {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.date {
+  font-weight: 500;
+}
+
+.readTime {
+  color: var(--color-text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-normal);
+}
+
+.cardLink:hover .tag {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .cardContent {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.125rem;
+  }
+
+  .description {
+    -webkit-line-clamp: 2;
+  }
+}

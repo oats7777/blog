@@ -1,11 +1,109 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import styles from '@/styles/Home.module.css';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 타입 정의
+type PostEntry = CollectionEntry<'posts'>;
+type BlogCardProps = {
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  category?: string;
+  readTime?: string;
+  tags: string[];
+};
+
+// Content Collections에서 포스트 가져오기
+const allPosts = await getCollection('posts');
+
+// 전체 발행된 포스트
+const allPublishedPosts = allPosts.filter((post: PostEntry) => !post.data.draft);
+
+// 날짜순으로 정렬하고 최신 3개 포스트만 가져오기
+const recentPosts: BlogCardProps[] = allPublishedPosts
+  .sort((a: PostEntry, b: PostEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3)
+  .map(
+    (post: PostEntry): BlogCardProps => ({
+      title: post.data.title,
+      description: post.data.description,
+      slug: post.slug,
+      date: post.data.date,
+      category: post.data.category,
+      readTime: post.data.readTime,
+      tags: post.data.tags,
+    })
+  );
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Minkyu's Tech Blog - 프론트엔드 개발 인사이트">
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <section class={styles.hero}>
+      <div class={`container ${styles.heroContainer}`}>
+        <div class="hero-content">
+          <h1 class={styles.heroTitle}>
+            안녕하세요! 👋<br />
+            저는 <span class={styles.highlight}>Minkyu</span>입니다
+          </h1>
+          <p class={styles.heroDescription}>
+            프론트엔드 개발자로서 저의 경험을 공유합니다.<br />
+          </p>
+          <div class={styles.heroActions}>
+            <a href="/posts" class={`${styles.btn} ${styles.btnPrimary}`}>최신 글 보기</a>
+            <a href="/about" class={`${styles.btn} ${styles.btnSecondary}`}>소개 보기</a>
+          </div>
+        </div>
+
+        <div class={styles.heroVisual}>
+          <div class={styles.codeSnippet}>
+            <div class={styles.codeHeader}>
+              <span class="code-lang">JavaScript</span>
+            </div>
+            <pre><code>{`const minkyu = {
+  role: 'Frontend Developer',
+  passion: '∞',
+  learning: 'continuous',
+  sharing: true,
+  
+  createAwesome() {
+    return this.passion + 
+           this.learning + 
+           this.sharing;
+  }
+};`}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Posts Section -->
+    <section class={styles.recentPosts}>
+      <div class="container">
+        <div class={styles.sectionHeader}>
+          <h2>최근 글</h2>
+          <a href="/posts" class={styles.viewAll}>모든 글 보기 →</a>
+        </div>
+
+        <div class={styles.postsGrid}>
+          {
+            recentPosts.length > 0 ? (
+              recentPosts.map((post: BlogCardProps) => <BlogCard {...post} />)
+            ) : (
+              <p class={styles.noPosts}>아직 작성된 글이 없습니다. 첫 번째 글을 작성해보세요!</p>
+            )
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
 </Layout>

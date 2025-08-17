@@ -1,0 +1,227 @@
+.postMain {
+  padding: 2rem 0 4rem;
+}
+
+.postArticle {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.postHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.postCategory {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 1.5rem;
+}
+
+.postTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.postDescription {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.postMeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.postDate {
+  font-weight: 500;
+}
+
+.separator {
+  color: var(--color-text-muted);
+}
+
+.postTags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.postContent {
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+/* Markdown 스타일 */
+.postContent :global(h1),
+.postContent :global(h2),
+.postContent :global(h3),
+.postContent :global(h4),
+.postContent :global(h5),
+.postContent :global(h6) {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.postContent :global(h1) {
+  font-size: 2.5rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.5rem;
+}
+
+.postContent :global(h2) {
+  font-size: 2rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+}
+
+.postContent :global(h3) {
+  font-size: 1.5rem;
+}
+
+.postContent :global(p) {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.postContent :global(ul),
+.postContent :global(ol) {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+}
+
+.postContent :global(li) {
+  margin-bottom: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.postContent :global(blockquote) {
+  border-left: 4px solid var(--color-primary);
+  background-color: var(--color-bg-secondary);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: var(--radius-md);
+  font-style: italic;
+}
+
+.postContent :global(pre) {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.postContent :global(code) {
+  font-family: var(--font-family-mono);
+  background-color: var(--color-bg-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 0.9em;
+}
+
+.postContent :global(pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.postFooter {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.backLink {
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: color var(--transition-normal);
+}
+
+.backLink:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .postMain {
+    padding: 1rem 0 3rem;
+  }
+
+  .postTitle {
+    font-size: 2rem;
+  }
+
+  .postDescription {
+    font-size: 1.1rem;
+  }
+
+  .postMeta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .postTags {
+    gap: 0.25rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .postContent {
+    font-size: 1rem;
+  }
+
+  .postContent :global(h1) {
+    font-size: 1.75rem;
+  }
+
+  .postContent :global(h2) {
+    font-size: 1.5rem;
+  }
+
+  .postContent :global(h3) {
+    font-size: 1.25rem;
+  }
+
+  .postContent :global(pre) {
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+}

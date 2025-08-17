@@ -1,0 +1,78 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import styles from '@/styles/PostDetail.module.css';
+import Footer from '@/components/Footer.astro';
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+
+type PostEntry = CollectionEntry<'posts'>;
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post: PostEntry) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: PostEntry };
+const { Content } = await post.render();
+
+// 날짜 포맷팅
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+---
+
+<Layout title={`${post.data.title} - Minkyu's Tech Blog`} description={post.data.description}>
+  <Header />
+
+  <main class={styles.postMain}>
+    <article class={styles.postArticle}>
+      <div class="container">
+        <div class={styles.postHeader}>
+          {post.data.category && <span class={styles.postCategory}>{post.data.category}</span>}
+          <h1 class={styles.postTitle}>{post.data.title}</h1>
+          <p class={styles.postDescription}>{post.data.description}</p>
+
+          <div class={styles.postMeta}>
+            <time class={styles.postDate}>{formatDate(post.data.date)}</time>
+            {
+              post.data.readTime && (
+                <>
+                  <span class={styles.separator}>·</span>
+                  <span class="read-time">{post.data.readTime}</span>
+                </>
+              )
+            }
+          </div>
+
+          {
+            post.data.tags && post.data.tags.length > 0 && (
+              <div class={styles.postTags}>
+                {post.data.tags.map((tag: string) => (
+                  <span class={styles.tag}>#{tag}</span>
+                ))}
+              </div>
+            )
+          }
+        </div>
+
+        <div class={styles.postContent}>
+          <Content />
+        </div>
+
+        <div class={styles.postFooter}>
+          <a href="/posts" class={styles.backLink}>← 모든 글 보기</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

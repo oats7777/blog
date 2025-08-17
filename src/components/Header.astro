@@ -1,0 +1,20 @@
+---
+import styles from '@/styles/Header.module.css';
+---
+
+<header class={styles.header}>
+  <div class="container">
+    <nav class={styles.nav}>
+      <a href="/" class={styles.logo}>
+        <span class={styles.logoIcon}>🚀</span>
+        <span class={styles.logoText}>Minkyu's Blog</span>
+      </a>
+
+      <ul class={styles.navLinks}>
+        <li><a href="/" class={styles.navLink}>Home</a></li>
+        <li><a href="/posts" class={styles.navLink}>Posts</a></li>
+        <li><a href="/about" class={styles.navLink}>About</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

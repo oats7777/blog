@@ -1,0 +1,51 @@
+---
+import styles from '@/styles/BlogCard.module.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  category?: string;
+  readTime?: string;
+  tags: string[];
+}
+
+const { title, description, slug, date, category, readTime, tags } = Astro.props;
+
+// 날짜 포맷팅
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+---
+
+<article class={styles.card}>
+  <a href={`/posts/${slug}`} class={styles.cardLink}>
+    <div class={styles.cardContent}>
+      {category && <span class={styles.category}>{category}</span>}
+
+      <h3 class={styles.title}>{title}</h3>
+      <p class={styles.description}>{description}</p>
+
+      <div class={styles.meta}>
+        <time class={styles.date}>{formatDate(date)}</time>
+        {readTime && <span class={styles.readTime}>{readTime}</span>}
+      </div>
+
+      {
+        tags && tags.length > 0 && (
+          <div class={styles.tags}>
+            {tags.map((tag) => (
+              <span class={styles.tag}>{tag}</span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </a>
+</article>

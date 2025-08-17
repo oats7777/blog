@@ -1,0 +1,145 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import styles from '@/styles/PostsList.module.css';
+
+type PostEntry = CollectionEntry<'posts'>;
+type BlogCardProps = {
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  category?: string;
+  readTime?: string;
+  tags: string[];
+};
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const publishedPosts = allPosts.filter((post: PostEntry) => !post.data.draft);
+
+  // 모든 카테고리를 수집
+  const categories = [
+    ...new Set(publishedPosts.map((post: PostEntry) => post.data.category).filter(Boolean)),
+  ] as string[];
+
+  return categories.map((category: string) => ({
+    params: { category: category.toLowerCase() },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props as { category: string };
+
+// Content Collections에서 모든 포스트 가져오기
+const allPosts = await getCollection('posts');
+
+// 현재 카테고리의 포스트만 필터링
+const categoryPosts: BlogCardProps[] = allPosts
+  .filter((post: PostEntry) => !post.data.draft && post.data.category === category)
+  .sort((a: PostEntry, b: PostEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .map(
+    (post: PostEntry): BlogCardProps => ({
+      title: post.data.title,
+      description: post.data.description,
+      slug: post.slug,
+      date: post.data.date,
+      category: post.data.category,
+      readTime: post.data.readTime,
+      tags: post.data.tags,
+    })
+  );
+
+// 전체 포스트에서 카테고리별 개수 계산 (사이드바용)
+const allPublishedPosts: BlogCardProps[] = allPosts
+  .filter((post: PostEntry) => !post.data.draft)
+  .map(
+    (post: PostEntry): BlogCardProps => ({
+      title: post.data.title,
+      description: post.data.description,
+      slug: post.slug,
+      date: post.data.date,
+      category: post.data.category,
+      readTime: post.data.readTime,
+      tags: post.data.tags,
+    })
+  );
+
+const categoryCount = allPublishedPosts.reduce((acc: Record<string, number>, post: BlogCardProps) => {
+  if (post.category) {
+    acc[post.category] = (acc[post.category] || 0) + 1;
+  }
+  return acc;
+}, {});
+
+const categories = Object.keys(categoryCount).sort();
+---
+
+<Layout
+  title={`${category} 글 목록 - Minkyu's Tech Blog`}
+  description={`${category} 카테고리의 모든 글을 확인해보세요.`}
+>
+  <Header />
+
+  <main class={styles.postsMain}>
+    <div class="container">
+      <div class={styles.postsHeader}>
+        <h1 class={styles.postsTitle}>{category} 글</h1>
+        <p class={styles.postsDescription}>
+          <strong>{categoryPosts.length}개</strong>의 {category} 관련 글이 있습니다.
+        </p>
+      </div>
+
+      <div class={styles.postsLayout}>
+        <!-- 사이드바 -->
+        <aside class={styles.postsSidebar}>
+          <div class={styles.sidebarSection}>
+            <h3>카테고리</h3>
+            <ul class={styles.categoryList}>
+              <li>
+                <a href="/posts" class={styles.categoryLink}>
+                  전체 <span class={styles.count}>({allPublishedPosts.length})</span>
+                </a>
+              </li>
+              {
+                categories.map((cat: string) => (
+                  <li>
+                    <a
+                      href={`/posts/category/${cat.toLowerCase()}`}
+                      class={`${styles.categoryLink} ${cat === category ? 'active' : ''}`}
+                    >
+                      {cat} <span class={styles.count}>({categoryCount[cat]})</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </aside>
+
+        <!-- 포스트 목록 -->
+        <div class={styles.postsContent}>
+          {
+            categoryPosts.length > 0 ? (
+              <div class={styles.postsGrid}>
+                {categoryPosts.map((post: BlogCardProps) => (
+                  <BlogCard {...post} />
+                ))}
+              </div>
+            ) : (
+              <div class={styles.noPosts}>
+                <h3>{category} 카테고리에 글이 없습니다</h3>
+                <p>다른 카테고리를 확인해보세요!</p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
