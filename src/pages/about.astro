@@ -1,0 +1,234 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import styles from '@/styles/About.module.css';
+---
+
+<Layout
+  title="소개 - 한민규의 기술 블로그"
+  description="7년차 프론트엔드 개발자 한민규의 소개와 경력, 기술 스택을 확인해보세요."
+>
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <section class={styles.hero}>
+      <div class={`container ${styles.heroContainer}`}>
+        <div class={styles.heroContent}>
+          <h1 class={styles.heroTitle}>
+            안녕하세요! 👋<br />
+            저는 <span class={styles.highlight}>한민규</span>입니다
+          </h1>
+          <p class={styles.heroDescription}>
+            <strong>Value = f(Empathy × Code × Iteration)</strong><br />
+            사용자를 이해하고, 코드를 다듬고, 반복해 가치를 만드는 것이 저의 개발 철학입니다.
+          </p>
+          <div class={styles.heroContact}>
+            <p>📧 hanmin84200@gmail.com</p>
+          </div>
+        </div>
+        <!-- 
+        <div class={styles.profileContainer}>
+          <img src="/profile.jpg" alt="한민규 프로필 사진" class={styles.profileImage} />
+        </div> -->
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class={styles.content}>
+      <div class="container">
+        <!-- About Me -->
+        <div class={styles.section}>
+          <h2 class={styles.sectionTitle}>About Me</h2>
+          <p class={styles.bio}>
+            안녕하세요! 7년차 프론트엔드 개발자 한민규입니다. React, Vue.js를 중심으로 다양한 웹 애플리케이션을
+            개발해왔으며, 사용자 경험과 개발자 경험 모두를 중시하는 개발을 지향합니다.
+          </p>
+          <p class={styles.bio}>
+            특히 디자인 시스템 구축, 성능 최적화, 팀 리드 경험을 통해 단순히 기능을 구현하는 것을 넘어서 지속 가능하고
+            확장 가능한 서비스를 만드는 데 집중하고 있습니다.
+          </p>
+          <p class={styles.bio}>
+            현재는 혜움에서 Monocle 디자인 시스템과 권한 관리 시스템을 구축하며, Vue3, React 등 다양한 기술 스택으로
+            프론트엔드 아키텍처를 설계하고 있습니다.
+          </p>
+        </div>
+
+        <!-- Skills -->
+        <div class={styles.section}>
+          <h2 class={styles.sectionTitle}>핵심 역량</h2>
+          <div class={styles.skillsGrid}>
+            <div class={styles.skillCategory}>
+              <h3 class={styles.skillTitle}>
+                <span class={styles.skillIcon}>⚛️</span>
+                Frontend
+              </h3>
+              <ul class={styles.skillList}>
+                <li class={styles.skillItem}>React</li>
+                <li class={styles.skillItem}>Vue3</li>
+                <li class={styles.skillItem}>Next.js</li>
+                <li class={styles.skillItem}>Nuxt</li>
+                <li class={styles.skillItem}>TypeScript</li>
+                <li class={styles.skillItem}>Zustand</li>
+                <li class={styles.skillItem}>TanStack Query</li>
+                <li class={styles.skillItem}>Tailwind CSS</li>
+                <li class={styles.skillItem}>Vanilla-extract</li>
+                <li class={styles.skillItem}>WebGL</li>
+              </ul>
+            </div>
+
+            <div class={styles.skillCategory}>
+              <h3 class={styles.skillTitle}>
+                <span class={styles.skillIcon}>🛠️</span>
+                Build & Tooling
+              </h3>
+              <ul class={styles.skillList}>
+                <li class={styles.skillItem}>Vite</li>
+                <li class={styles.skillItem}>pnpm</li>
+                <li class={styles.skillItem}>Storybook</li>
+                <li class={styles.skillItem}>Vitest</li>
+                <li class={styles.skillItem}>Jest</li>
+                <li class={styles.skillItem}>Webpack</li>
+                <li class={styles.skillItem}>ESLint</li>
+                <li class={styles.skillItem}>Prettier</li>
+                <li class={styles.skillItem}>AWS IVS</li>
+              </ul>
+            </div>
+
+            <div class={styles.skillCategory}>
+              <h3 class={styles.skillTitle}>
+                <span class={styles.skillIcon}>🎨</span>
+                UX/UI & Other
+              </h3>
+              <ul class={styles.skillList}>
+                <li class={styles.skillItem}>디자인 시스템 구축</li>
+                <li class={styles.skillItem}>글로벌 다국어 지원</li>
+                <li class={styles.skillItem}>인터랙티브 UI</li>
+                <li class={styles.skillItem}>팀 리드 경험</li>
+                <li class={styles.skillItem}>성능 최적화</li>
+                <li class={styles.skillItem}>권한 관리 시스템</li>
+                <li class={styles.skillItem}>Node.js</li>
+                <li class={styles.skillItem}>auth.js</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class={styles.section}>
+          <h2 class={styles.sectionTitle}>Experience</h2>
+          <div class={styles.timelineContainer}>
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2025.03 - 재직 중</div>
+              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
+              <div class={styles.timelineCompany}>혜움</div>
+              <p class={styles.timelineDescription}>
+                • <strong>Monocle 디자인 시스템 개발</strong>: Foundation 레이어 및 low-level 컴포넌트 구축, Storybook
+                기반 문서화로 협업 효율 개선<br />
+                • <strong>권한 관리 시스템 구축</strong>: 관리자 및 사용자 권한 설정 기능 신규 개발 (React Router v7
+                POC, Vue3)<br />
+                • <strong>서비스 주체 변경 및 약관 관리 시스템</strong>: 도메인별 자동화 설계로 FE 수정 없이 서비스 확장
+                가능<br />
+                • <strong>성능·시스템 개선</strong>: 낙관적 업데이트 컴포지션 도입, npm → pnpm, jest → vitest
+                마이그레이션
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2024.04 - 2025.02</div>
+              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
+              <div class={styles.timelineCompany}>플루언트</div>
+              <p class={styles.timelineDescription}>
+                • <strong>WebGL/AI 기반 인터랙션 플랫폼 Xavis</strong>: 글로벌 유저 대상 다국어 지원 및 실시간 아바타
+                채팅 UI 구현 (Next.js, TanStack Query, Zustand, WebGL)<br />
+                • <strong>AI 기반 MotiPet 기획·PO</strong>: 성장·상호작용·상태변화 시스템 기획 완료, 외주 리소스 관리
+                효율화<br />
+                • <strong>회사 홈페이지 개발</strong>: SEO 최적화, 비즈니스 문의 페이지 추가, WebGL 아바타 채팅 구현
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2022.09 - 2024.03</div>
+              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
+              <div class={styles.timelineCompany}>스푼라디오</div>
+              <p class={styles.timelineDescription}>
+                • <strong>Vue2 → Vue3 마이그레이션</strong>: Vue CLI → Vite, npm → pnpm 전환으로 빌드 속도 3배 향상<br
+                />
+                • <strong>AWS IVS 기반 라이브 코어 엔진 교체</strong>: WebRTC → AWS IVS Stage 전환으로 고음질 방송 및
+                레이턴시 감소<br />
+                • <strong>Web팀 리드 대행 및 채용</strong>: 주니어 개발자 2명 채용 및 온보딩, 프로젝트 일정·우선순위
+                조율
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2022.05 - 2022.08</div>
+              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
+              <div class={styles.timelineCompany}>플라잉캣</div>
+              <p class={styles.timelineDescription}>
+                • <strong>10분 특공대 앱 기능 개선</strong>: 비회원 둘러보기, 리뷰 작성, 배포환경 분리, Code Push 기능
+                구현
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2018.12 - 2022.04</div>
+              <h3 class={styles.timelineTitle}>풀스택 개발자</h3>
+              <div class={styles.timelineCompany}>로앤컴퍼니</div>
+              <p class={styles.timelineDescription}>
+                • <strong>판례검색 서비스 '빅케이스' 신규 개발</strong>: Next.js, Storybook, Snapshot Test 적용<br />
+                • <strong>로톡 비즈니스 2.0 풀스택 개발</strong>: React, Mobx, TypeScript, Node.js 활용<br />
+                • <strong>레거시 시스템 개선</strong>: 웹팩 1 → 5 마이그레이션, Coffeescript 제거, 성과 배지 시스템 추가
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class={styles.section}>
+          <h2 class={styles.sectionTitle}>학력</h2>
+          <div class={styles.timelineContainer}>
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2016.03 - 2019.01</div>
+              <h3 class={styles.timelineTitle}>컴퓨터네트워크과</h3>
+              <div class={styles.timelineCompany}>서울전자고등학교</div>
+              <p class={styles.timelineDescription}>
+                특성화 고등학교에서 컴퓨터 네트워크 및 프로그래밍 기초를 학습했습니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class={styles.section}>
+          <div class={styles.contact}>
+            <h2 class={styles.contactTitle}>연락하기</h2>
+            <p class={styles.contactDescription}>궁금한 점이 있거나 함께 협업하고 싶으시다면 언제든 연락주세요!</p>
+            <div class={styles.contactLinks}>
+              <a href="mailto:hanmin84200@gmail.com" class={styles.contactLink}> 📧 이메일 보내기 </a>
+              <a
+                href="https://github.com/oats7777"
+                class={styles.contactLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                🐙 GitHub
+              </a>
+              <a
+                href="https://www.linkedin.com/in/fe-minkyu"
+                class={`${styles.contactLink} ${styles.secondary}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                💼 LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
