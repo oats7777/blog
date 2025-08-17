@@ -1,4 +1,5 @@
 ---
+import Analytics from '@vercel/analytics/astro';
 export interface Props {
   title?: string;
   description?: string;
@@ -23,6 +24,7 @@ const { title = 'Minkyu의 기술 블로그', description = '프론트엔드 개
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <Analytics />
   </head>
   <body>
     <slot />
