@@ -100,7 +100,7 @@ const step2 = step1(2);             // CurriedFn<[number], number>
 const result = step2(3);            // ComputedRef<number>
 ```
 
-이렇게 단계별로 타입이 줄어드는 게 보이지?
+이렇게 단계별로 타입이 줄어드는것을 확인할 수 있다.
 
 ## reactiveCurry 구현
 
