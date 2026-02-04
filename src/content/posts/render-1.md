@@ -141,19 +141,26 @@ function paintElement(element, context) {
 DOM을 직접 조작할 때마다 브라우저는 렌더링 파이프라인을 다시 실행해야 한다. 특히 레이아웃에 영향을 주는 변경사항은 비용이 크다.
 
 ```javascript
-// 비효율적인 DOM 조작
+// 비효율적인 DOM 조작 - 강제 동기 레이아웃(Forced Synchronous Layout) 유발
 const todoList = document.getElementById('todo-list');
 
-// 각 조작마다 레이아웃 재계산 발생
-todoList.style.display = 'none';  // 리플로우 발생
-todoList.innerHTML = '';          // 리플로우 발생
-todoList.appendChild(newItem1);   // 리플로우 발생
-todoList.appendChild(newItem2);   // 리플로우 발생
-todoList.appendChild(newItem3);   // 리플로우 발생
-todoList.style.display = 'block'; // 리플로우 발생
+// DOM 조작 후 레이아웃 정보를 읽으면 강제 리플로우 발생
+todoList.style.width = '500px';
+console.log(todoList.offsetHeight); // 강제 리플로우! 레이아웃 정보 읽기
+todoList.style.height = '300px';
+console.log(todoList.offsetWidth);  // 또 강제 리플로우!
+
+// 아래처럼 레이아웃 정보를 읽지 않으면 브라우저가 배치 처리함
+todoList.style.display = 'none';
+todoList.innerHTML = '';
+todoList.appendChild(newItem1);
+todoList.appendChild(newItem2);
+todoList.appendChild(newItem3);
+todoList.style.display = 'block';
+// 위 작업들은 브라우저가 다음 프레임에서 한 번에 처리 (배치 최적화)
 ```
 
-위 코드는 총 6번의 리플로우를 발생시킨다. 리플로우는 요소의 크기나 위치를 다시 계산하는 과정으로, 페이지 전체에 영향을 줄 수 있어 성능상 비용이 크다.
+리플로우는 요소의 크기나 위치를 다시 계산하는 과정이다. 현대 브라우저는 DOM 조작을 배치 처리하여 최적화하지만, `offsetHeight`, `getBoundingClientRect()` 등 레이아웃 정보를 읽으면 **강제 동기 레이아웃**이 발생하여 성능 문제가 생긴다.
 
 #### 리플로우와 리페인트 성능 분석
 
@@ -230,17 +237,17 @@ profiler.measureDOMOperation(() => {
 ```css
 /* GPU 레이어를 생성하는 CSS 속성들 */
 .gpu-accelerated {
-  /* 3D 변환 */
+  /* 3D 변환 - GPU 레이어 생성 */
   transform: translateZ(0); /* 또는 translate3d(0,0,0) */
-  
-  /* 불투명도 애니메이션 */
-  opacity: 0.99;
-  
-  /* 필터 효과 */
-  filter: blur(0px);
-  
-  /* will-change로 명시적 레이어 생성 */
+
+  /* will-change로 명시적 레이어 생성 (권장) */
   will-change: transform, opacity;
+
+  /*
+   * 참고: opacity: 0.99나 filter: blur(0px) 같은 트릭은
+   * 과거에 사용되었으나 현대 브라우저에서는 불필요하며,
+   * will-change 사용이 권장됨
+   */
 }
 
 /* 레이어 최적화를 활용한 애니메이션 */
@@ -502,7 +509,7 @@ function addTodo(text) {
 - 상태와 UI 수동 동기화
 - 성능 최적화의 한계
 
-### 3단계: Angular.js 시대 (2010~2016)
+### 3단계: Angular.js 시대 (2012~2016)
 
 Angular.js는 **양방향 데이터 바인딩**과 **더티 체킹**을 통해 렌더링을 자동화했다:
 
@@ -541,6 +548,8 @@ Angular.js의 핵심인 더티 체킹은 모든 바인딩된 값들을 주기적
 // 더티 체킹 메커니즘 (단순화)
 function digestCycle() {
   let dirty;
+  let ttl = 10; // TTL(Time To Live): 무한 루프 방지를 위한 최대 반복 횟수
+
   do {
     dirty = false;
     watchers.forEach(watcher => {
@@ -551,6 +560,10 @@ function digestCycle() {
         dirty = true; // 변화가 있으면 다시 체크
       }
     });
+
+    if (--ttl < 0) {
+      throw new Error('10 $digest() iterations reached. Aborting!');
+    }
   } while (dirty); // 더 이상 변화가 없을 때까지 반복
 }
 ```
@@ -749,7 +762,10 @@ function updateProps(element, prevProps, nextProps) {
 
 ## React Fiber: 리액트 16의 렌더링 아키텍처
 
-React의 가상 DOM을 구현하는 핵심 기술이 바로 **Fiber**다. Fiber는 React 16에서 도입된 새로운 재조정(reconciliation) 알고리즘으로, 렌더링 성능과 사용자 경험을 획기적으로 개선했다.
+React의 가상 DOM을 구현하는 핵심 기술이 바로 **Fiber**다. Fiber는 React 16에서 도입된 새로운 **재조정(reconciliation)** 알고리즘으로, 렌더링 성능과 사용자 경험을 획기적으로 개선했다.
+
+> **재조정(Reconciliation)이란?**
+> 이전 가상 DOM 트리와 새로운 가상 DOM 트리를 비교하여 실제 DOM에 반영할 최소한의 변경사항을 계산하는 과정이다. React는 이 과정을 통해 효율적인 UI 업데이트를 수행한다.
 
 ### Fiber 이전의 한계점
 
@@ -801,7 +817,7 @@ interface FiberNode {
   
   // 작업 단위
   alternate: FiberNode | null;       // 이전 버전의 Fiber (더블 버퍼링)
-  effectTag: EffectTag;              // 수행할 작업 타입
+  flags: Flags;                      // 수행할 작업 타입 (React 17+ 명칭, 이전: effectTag)
   updateQueue: UpdateQueue | null;   // 상태 업데이트 큐
   
   // 스케줄링
@@ -809,8 +825,9 @@ interface FiberNode {
   childLanes: Lanes;                 // 자식들의 우선순위
 }
 
-type EffectTag = 
-  | 'NoEffect'     // 변경 없음
+// React 17+에서는 effectTag가 flags로 변경됨
+type Flags =
+  | 'NoFlags'      // 변경 없음
   | 'Placement'    // 새로 추가
   | 'Update'       // 속성 변경
   | 'Deletion'     // 제거
@@ -1062,6 +1079,8 @@ React 18에서는 **Lane** 모델을 사용하여 업데이트 우선순위를 �
 
 ```javascript
 // Lane 우선순위 (비트마스크)
+// 참고: 아래 값들은 개념 설명을 위해 단순화한 예시이며,
+// 실제 React 소스코드의 Lane 값과 다를 수 있다.
 const SyncLane = 0b0000000000000000000000000000001;
 const InputContinuousLane = 0b0000000000000000000000000000100;
 const DefaultLane = 0b0000000000000000000000000010000;
@@ -1110,7 +1129,11 @@ Fiber의 핵심 기능인 **Time Slicing**:
 
 ```javascript
 // Scheduler의 작업 분할
+let startTime = 0;          // 작업 시작 시간 (Scheduler 내부에서 관리)
+const frameYieldMs = 5;     // 프레임당 양보 시간 (기본 5ms)
+
 function workLoopConcurrent() {
+  startTime = getCurrentTime(); // 작업 시작 시 시간 기록
   while (workInProgress !== null && !shouldYield()) {
     workInProgress = performUnitOfWork(workInProgress);
   }
@@ -1118,18 +1141,18 @@ function workLoopConcurrent() {
 
 function shouldYield(): boolean {
   const timeElapsed = getCurrentTime() - startTime;
-  
+
   // 5ms 이상 작업했으면 양보
-  if (timeElapsed < 5) {
+  if (timeElapsed < frameYieldMs) {
     return false;
   }
-  
-  // 브라우저의 다른 작업 확인
+
+  // 브라우저의 다른 작업(사용자 입력 등) 확인
   if (navigator.scheduling?.isInputPending()) {
     return true;
   }
-  
-  return timeElapsed >= frameYieldMs;
+
+  return true; // 시간 초과 시 양보
 }
 
 // Concurrent Features 예시
@@ -1716,7 +1739,9 @@ Vue 3과 Solid.js는 Proxy를 사용하여 상태 변경을 감지하고 필요�
 
 ```javascript
 // Vue 3의 reactive 시스템
-import { reactive, effect } from 'vue';
+import { reactive, watchEffect } from 'vue';
+// 참고: effect는 @vue/reactivity 패키지에서 직접 import 가능하지만,
+// 일반적인 Vue 3 사용에서는 watchEffect를 권장한다.
 
 const state = reactive({
   todos: [],
@@ -1724,18 +1749,18 @@ const state = reactive({
 });
 
 // 상태 변경을 자동으로 감지
-effect(() => {
+watchEffect(() => {
   // todos나 filter가 변경되면 자동 실행
   const filteredTodos = state.todos.filter(todo => {
     if (state.filter === 'completed') return todo.completed;
     if (state.filter === 'pending') return !todo.completed;
     return true;
   });
-  
+
   updateTodoList(filteredTodos);
 });
 
-// 상태 변경 시 effect 자동 실행
+// 상태 변경 시 watchEffect 자동 실행
 state.todos.push({ id: 1, text: 'Learn Vue 3', completed: false });
 ```
 
@@ -1806,28 +1831,35 @@ function TodoApp() {
     });
   };
 
-  // DOM 업데이트 effect
-  createEffect(() => {
-    const todoList = document.getElementById('todo-list');
-    const currentTodos = filteredTodos();
-
-    // 직접 DOM 조작 - 가상 DOM 없음
-    todoList.innerHTML = '';
-    currentTodos.forEach(todo => {
-      const li = document.createElement('li');
-      li.textContent = todo.text;
-      li.className = todo.completed ? 'completed' : '';
-      todoList.appendChild(li);
-    });
-  });
-
   return {
+    todos: filteredTodos, // 반응형 데이터
     addTodo: (text) => setTodos(prev => [...prev, { id: Date.now(), text, completed: false }]),
     toggleTodo: (id) => setTodos(prev => prev.map(todo =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     )),
     setFilter
   };
+}
+
+// 실제 Solid.js에서는 JSX를 사용하여 선언적으로 작성한다.
+// 컴파일러가 세밀한 DOM 업데이트 코드를 자동 생성한다.
+function TodoList() {
+  const { todos, toggleTodo } = TodoApp();
+
+  return (
+    <ul>
+      <For each={todos()}>
+        {(todo) => (
+          <li
+            class={todo.completed ? 'completed' : ''}
+            onClick={() => toggleTodo(todo.id)}
+          >
+            {todo.text}
+          </li>
+        )}
+      </For>
+    </ul>
+  );
 }
 ```
 
@@ -2142,6 +2174,9 @@ async function TodoList() {
 
 // 클라이언트에서는 이미 렌더링된 HTML을 받아서 hydration만 수행
 ```
+
+> **Hydration이란?**
+> 서버에서 렌더링된 정적 HTML에 JavaScript 이벤트 핸들러와 상태를 연결하여 인터랙티브하게 만드는 과정이다. "건조한(dehydrated)" HTML에 "물을 주어(hydrate)" 생명력을 불어넣는다는 비유에서 유래했다.
 
 장점: 초기 로딩 속도 향상, SEO 개선, 자바스크립트 번들 크기 감소
 

@@ -29,7 +29,13 @@ const formatDate = (dateString: string) => {
 };
 ---
 
-<Layout title={`${post.data.title} - Minkyu's Tech Blog`} description={post.data.description}>
+<Layout
+  title={`${post.data.title} - Minkyu's Tech Blog`}
+  description={post.data.description}
+  article={true}
+  publishedTime={post.data.date}
+  tags={post.data.tags || []}
+>
   <Header />
 
   <main class={styles.postMain}>

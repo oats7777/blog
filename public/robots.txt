@@ -1,0 +1,7 @@
+# robots.txt for https://www.fe-minkyu.dev
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.fe-minkyu.dev/sitemap-index.xml

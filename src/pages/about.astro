@@ -7,7 +7,7 @@ import styles from '@/styles/About.module.css';
 
 <Layout
   title="소개 - 한민규의 기술 블로그"
-  description="7년차 프론트엔드 개발자 한민규의 소개와 경력, 기술 스택을 확인해보세요."
+  description="8년차 개발자 한민규의 소개와 경력, 기술 스택을 확인해보세요."
 >
   <Header />
 
@@ -42,7 +42,7 @@ import styles from '@/styles/About.module.css';
         <div class={styles.section}>
           <h2 class={styles.sectionTitle}>About Me</h2>
           <p class={styles.bio}>
-            안녕하세요! 7년차 프론트엔드 개발자 한민규입니다. React, Vue.js를 중심으로 다양한 웹 애플리케이션을
+            안녕하세요! 8년차 개발자 한민규입니다. React, Vue.js를 중심으로 다양한 웹 애플리케이션을
             개발해왔으며, 사용자 경험과 개발자 경험 모두를 중시하는 개발을 지향합니다.
           </p>
           <p class={styles.bio}>
@@ -50,66 +50,61 @@ import styles from '@/styles/About.module.css';
             확장 가능한 서비스를 만드는 데 집중하고 있습니다.
           </p>
           <p class={styles.bio}>
-            현재는 혜움에서 Monocle 디자인 시스템과 권한 관리 시스템을 구축하며, Vue3, React 등 다양한 기술 스택으로
-            프론트엔드 아키텍처를 설계하고 있습니다.
+            현재는 알고크라시에서 CTO로 재직하며, 서비스 전반의 기술 전략 수립과 시스템 아키텍처 설계를 담당하고 있습니다.
+            이전에는 AI 캐릭터 채팅 플랫폼 Whif에서 하이브리드 앱 출시를 주도하고, 혜움에서 디자인 시스템과 권한 관리 시스템을 구축했습니다.
           </p>
         </div>
 
         <!-- Skills -->
         <div class={styles.section}>
-          <h2 class={styles.sectionTitle}>핵심 역량</h2>
+          <h2 class={styles.sectionTitle}>기술 스택</h2>
           <div class={styles.skillsGrid}>
             <div class={styles.skillCategory}>
               <h3 class={styles.skillTitle}>
                 <span class={styles.skillIcon}>⚛️</span>
-                Frontend
+                Frontend Core
               </h3>
               <ul class={styles.skillList}>
-                <li class={styles.skillItem}>React</li>
-                <li class={styles.skillItem}>Vue3</li>
-                <li class={styles.skillItem}>Next.js</li>
-                <li class={styles.skillItem}>Nuxt</li>
                 <li class={styles.skillItem}>TypeScript</li>
-                <li class={styles.skillItem}>Zustand</li>
-                <li class={styles.skillItem}>TanStack Query</li>
-                <li class={styles.skillItem}>Tailwind CSS</li>
-                <li class={styles.skillItem}>Vanilla-extract</li>
-                <li class={styles.skillItem}>WebGL</li>
+                <li class={styles.skillItem}>React / Next.js</li>
+                <li class={styles.skillItem}>Vue3 / Nuxt</li>
+                <li class={styles.skillItem}>Zustand / TanStack Query</li>
+              </ul>
+            </div>
+
+            <div class={styles.skillCategory}>
+              <h3 class={styles.skillTitle}>
+                <span class={styles.skillIcon}>📱</span>
+                Mobile & Backend
+              </h3>
+              <ul class={styles.skillList}>
+                <li class={styles.skillItem}>Capacitor</li>
+                <li class={styles.skillItem}>Supabase</li>
+                <li class={styles.skillItem}>Node.js</li>
               </ul>
             </div>
 
             <div class={styles.skillCategory}>
               <h3 class={styles.skillTitle}>
                 <span class={styles.skillIcon}>🛠️</span>
-                Build & Tooling
+                DevOps & Testing
               </h3>
               <ul class={styles.skillList}>
-                <li class={styles.skillItem}>Vite</li>
-                <li class={styles.skillItem}>pnpm</li>
-                <li class={styles.skillItem}>Storybook</li>
-                <li class={styles.skillItem}>Vitest</li>
-                <li class={styles.skillItem}>Jest</li>
-                <li class={styles.skillItem}>Webpack</li>
-                <li class={styles.skillItem}>ESLint</li>
-                <li class={styles.skillItem}>Prettier</li>
-                <li class={styles.skillItem}>AWS IVS</li>
+                <li class={styles.skillItem}>Vite / pnpm</li>
+                <li class={styles.skillItem}>Vitest / Storybook</li>
+                <li class={styles.skillItem}>CI/CD</li>
               </ul>
             </div>
 
             <div class={styles.skillCategory}>
               <h3 class={styles.skillTitle}>
-                <span class={styles.skillIcon}>🎨</span>
-                UX/UI & Other
+                <span class={styles.skillIcon}>🎯</span>
+                Specialty
               </h3>
               <ul class={styles.skillList}>
-                <li class={styles.skillItem}>디자인 시스템 구축</li>
-                <li class={styles.skillItem}>글로벌 다국어 지원</li>
-                <li class={styles.skillItem}>인터랙티브 UI</li>
-                <li class={styles.skillItem}>팀 리드 경험</li>
+                <li class={styles.skillItem}>디자인 시스템</li>
                 <li class={styles.skillItem}>성능 최적화</li>
-                <li class={styles.skillItem}>권한 관리 시스템</li>
-                <li class={styles.skillItem}>Node.js</li>
-                <li class={styles.skillItem}>auth.js</li>
+                <li class={styles.skillItem}>WebGL / AWS IVS</li>
               </ul>
             </div>
           </div>
@@ -120,7 +115,31 @@ import styles from '@/styles/About.module.css';
           <h2 class={styles.sectionTitle}>Experience</h2>
           <div class={styles.timelineContainer}>
             <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2025.03 - 재직 중</div>
+              <div class={styles.timelineDate}>2026.01 - 재직 중</div>
+              <h3 class={styles.timelineTitle}>CTO</h3>
+              <div class={styles.timelineCompany}>알고크라시</div>
+              <p class={styles.timelineDescription}>
+                • <strong>기술 전략 수립</strong>: 서비스 전반의 기술 방향성 설정 및 의사결정<br />
+                • <strong>시스템 아키텍처 설계</strong>: 프론트엔드, 백엔드, 인프라 전반의 아키텍처 설계<br />
+                • <strong>팀 빌딩 및 기술 리더십</strong>: 개발 문화 구축 및 팀 성장 지원
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2025.09 - 2025.11</div>
+              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
+              <div class={styles.timelineCompany}>벙커키즈 (Whif)</div>
+              <p class={styles.timelineDescription}>
+                • <strong>PWA → Capacitor 하이브리드 앱 전환</strong>: 초기 세팅부터 스토어 심사까지 약 2주 내 iOS·Android 동시 출시<br />
+                • <strong>OTA(Over-The-Air) 업데이트 시스템 구축</strong>: 앱 재배포 없이 웹 변경사항 즉시 반영 가능하게 개선<br />
+                • <strong>RevenueCat 기반 인앱결제</strong>: App Store·Play Store 상품 통합 관리, 화폐 단위별 상품 구조 설계<br />
+                • <strong>Supabase Auth 및 딥링크 구현</strong>: Google/Kakao 인증, Universal Link/App Link로 웹↔앱 인증 루프 완성<br />
+                • <strong>품질 개선</strong>: E2E/유닛 테스트 도입으로 채팅 메시지 유실 오류율 100% 감소
+              </p>
+            </div>
+
+            <div class={styles.timelineItem}>
+              <div class={styles.timelineDate}>2025.03 - 2025.08</div>
               <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
               <div class={styles.timelineCompany}>혜움</div>
               <p class={styles.timelineDescription}>
