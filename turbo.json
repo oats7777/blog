@@ -11,12 +11,10 @@
       "cache": true
     },
     "build": {
-      "dependsOn": ["copy:wasm"],
       "outputs": ["dist/**"],
       "cache": true
     },
     "dev": {
-      "dependsOn": ["copy:wasm"],
       "persistent": true,
       "cache": false
     },
