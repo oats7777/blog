@@ -1,0 +1,51 @@
+---
+import styles from '@/styles/ToyCard.module.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  techStack: string;
+  tags: string[];
+}
+
+const { title, description, slug, date, techStack, tags } = Astro.props;
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+---
+
+<article class={styles.card}>
+  <a href={`/toys/${slug}`} class={styles.cardLink}>
+    <div class={styles.cardContent}>
+      <div class={styles.badges}>
+        <span class={styles.badge}>Toy</span>
+        <span class={styles.techBadge}>{techStack}</span>
+      </div>
+
+      <h3 class={styles.title}>{title}</h3>
+      <p class={styles.description}>{description}</p>
+
+      <div class={styles.meta}>
+        <time class={styles.date}>{formatDate(date)}</time>
+      </div>
+
+      {
+        tags && tags.length > 0 && (
+          <div class={styles.tags}>
+            {tags.map((tag) => (
+              <span class={styles.tag}>{tag}</span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </a>
+</article>

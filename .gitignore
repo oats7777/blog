@@ -1,5 +1,10 @@
 # build output
 dist/
+.turbo/
+
+# Rust
+toys/*/target/
+toys/*/Cargo.lock
 
 # generated types
 .astro/

@@ -1,24 +1,31 @@
 {
-  "name": "my-tech-blog",
+  "name": "@minkyu/blog",
   "type": "module",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:wasm": "echo 'No WASM to build in root'",
+    "copy:wasm": "mkdir -p src/lib/wasm/rust-canvas && cp -r toys/rust-canvas/pkg/* src/lib/wasm/rust-canvas/",
     "preview": "astro preview",
-    "astro": "astro",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "clean": "rm -rf dist .turbo src/lib/wasm",
+    "turbo:dev": "turbo run dev --filter=@minkyu/blog",
+    "turbo:build": "turbo run build --filter=@minkyu/blog"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.15",
     "@astrojs/sitemap": "^3.7.0",
-    "@vercel/analytics": "^1.5.0",
-    "astro": "^5.13.0"
+    "@vercel/analytics": "^1.6.1",
+    "astro": "^5.17.1",
+    "vite-plugin-wasm": "^3.5.0"
   },
   "packageManager": "pnpm@9.15.0+sha256.09a8fe31a34fda706354680619f4002f4ccef6dadff93240d24ef6c831f0fd28",
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "prettier": "^3.6.2",
-    "prettier-plugin-astro": "0.14.1"
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "0.14.1",
+    "turbo": "^2.8.3"
   }
 }

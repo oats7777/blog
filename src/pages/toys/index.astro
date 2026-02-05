@@ -1,0 +1,67 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import ToyCard from '@/components/ToyCard.astro';
+import styles from '@/styles/ToysList.module.css';
+
+type ToyEntry = CollectionEntry<'toys'>;
+type ToyCardProps = {
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  techStack: string;
+  tags: string[];
+};
+
+const allToys = await getCollection('toys');
+
+const toys: ToyCardProps[] = allToys
+  .filter((toy: ToyEntry) => !toy.data.draft)
+  .sort((a: ToyEntry, b: ToyEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .map(
+    (toy: ToyEntry): ToyCardProps => ({
+      title: toy.data.title,
+      description: toy.data.description,
+      slug: toy.slug,
+      date: toy.data.date,
+      techStack: toy.data.techStack,
+      tags: toy.data.tags,
+    })
+  );
+---
+
+<Layout title="Toys - Minkyu's Tech Blog" description="직접 체험해볼 수 있는 프로젝트들을 모아봤습니다.">
+  <Header />
+
+  <main class={styles.toysMain}>
+    <div class="container">
+      <div class={styles.toysHeader}>
+        <h1 class={styles.toysTitle}>Toys</h1>
+        <p class={styles.toysDescription}>
+          직접 체험해볼 수 있는 프로젝트들이에요. 총 <strong>{toys.length}개</strong>의 toy가 있습니다.
+        </p>
+      </div>
+
+      {
+        toys.length > 0 ? (
+          <div class={styles.toysGrid}>
+            {toys.map((toy) => (
+              <ToyCard {...toy} />
+            ))}
+          </div>
+        ) : (
+          <div class={styles.noToys}>
+            <h3>아직 등록된 toy가 없습니다</h3>
+            <p>곧 재미있는 프로젝트들을 올릴게요!</p>
+          </div>
+        )
+      }
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

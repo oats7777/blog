@@ -1,0 +1,69 @@
+.toysMain {
+  padding: 2rem 0 4rem;
+  min-height: 70vh;
+}
+
+.toysHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.toysTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.toysDescription {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+}
+
+.toysGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.noToys {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+}
+
+.noToys h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.noToys p {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .toysMain {
+    padding: 1rem 0 3rem;
+  }
+
+  .toysTitle {
+    font-size: 2rem;
+  }
+
+  .toysGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .noToys {
+    padding: 3rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .toysGrid {
+    gap: 1rem;
+  }
+}

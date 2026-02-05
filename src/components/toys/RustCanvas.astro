@@ -1,0 +1,226 @@
+---
+import styles from '@/styles/toys/RustCanvas.module.css';
+---
+
+<div class={styles.container}>
+  <div class={styles.toolbar}>
+    <div class={styles.toolGroup}>
+      <label>도구</label>
+      <div class={styles.tools}>
+        <button id="penBtn" class={styles.toolBtn} data-active="true" title="펜">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z" />
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+            <path d="M2 2l7.586 7.586" />
+          </svg>
+        </button>
+        <button id="eraserBtn" class={styles.toolBtn} data-active="false" title="지우개">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L13.4 3c.8-.8 2-.8 2.8 0L21 7.8c.8.8.8 2 0 2.8L10 20" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class={styles.toolGroup}>
+      <label>색상</label>
+      <div class={styles.colors}>
+        <input type="color" id="colorPicker" value="#000000" />
+        <button class={styles.colorBtn} data-color="#000000" data-active="true" style="background:#000000"></button>
+        <button class={styles.colorBtn} data-color="#ef4444" data-active="false" style="background:#ef4444"></button>
+        <button class={styles.colorBtn} data-color="#f97316" data-active="false" style="background:#f97316"></button>
+        <button class={styles.colorBtn} data-color="#eab308" data-active="false" style="background:#eab308"></button>
+        <button class={styles.colorBtn} data-color="#22c55e" data-active="false" style="background:#22c55e"></button>
+        <button class={styles.colorBtn} data-color="#3b82f6" data-active="false" style="background:#3b82f6"></button>
+        <button class={styles.colorBtn} data-color="#8b5cf6" data-active="false" style="background:#8b5cf6"></button>
+      </div>
+    </div>
+
+    <div class={styles.toolGroup}>
+      <label>굵기: <span id="sizeValue">5</span>px</label>
+      <input type="range" id="sizeSlider" min="1" max="50" value="5" />
+    </div>
+
+    <div class={styles.toolGroup}>
+      <button id="clearBtn" class={styles.clearBtn}>전체 지우기</button>
+    </div>
+  </div>
+
+  <div class={styles.canvasContainer}>
+    <canvas id="rust-canvas"></canvas>
+  </div>
+</div>
+
+<script>
+  import init, { Canvas } from '@/lib/wasm/rust-canvas/rust_canvas.js';
+
+  interface Position {
+    x: number;
+    y: number;
+  }
+
+  const LOGICAL_WIDTH = 800;
+  const LOGICAL_HEIGHT = 500;
+
+  function getPosition(e: MouseEvent | TouchEvent, canvasEl: HTMLCanvasElement): Position {
+    const rect = canvasEl.getBoundingClientRect();
+    const scaleX = LOGICAL_WIDTH / rect.width;
+    const scaleY = LOGICAL_HEIGHT / rect.height;
+
+    if ('touches' in e && e.touches.length > 0) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY,
+      };
+    }
+
+    const mouseEvent = e as MouseEvent;
+    return {
+      x: (mouseEvent.clientX - rect.left) * scaleX,
+      y: (mouseEvent.clientY - rect.top) * scaleY,
+    };
+  }
+
+  function setActiveState(element: Element, isActive: boolean): void {
+    element.setAttribute('data-active', String(isActive));
+  }
+
+  function setupCanvasSize(canvasEl: HTMLCanvasElement): number {
+    const dpr = window.devicePixelRatio || 1;
+
+    canvasEl.width = LOGICAL_WIDTH * dpr;
+    canvasEl.height = LOGICAL_HEIGHT * dpr;
+    canvasEl.style.width = `${LOGICAL_WIDTH}px`;
+    canvasEl.style.height = `${LOGICAL_HEIGHT}px`;
+
+    return dpr;
+  }
+
+  function setupDrawingEvents(canvasEl: HTMLCanvasElement, canvas: Canvas): void {
+    canvasEl.addEventListener('mousedown', (e) => {
+      const pos = getPosition(e, canvasEl);
+      canvas.start_drawing(pos.x, pos.y);
+    });
+
+    canvasEl.addEventListener('mousemove', (e) => {
+      const pos = getPosition(e, canvasEl);
+      canvas.draw(pos.x, pos.y);
+    });
+
+    canvasEl.addEventListener('mouseup', () => canvas.stop_drawing());
+    canvasEl.addEventListener('mouseleave', () => canvas.stop_drawing());
+
+    canvasEl.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault();
+        const pos = getPosition(e, canvasEl);
+        canvas.start_drawing(pos.x, pos.y);
+      },
+      { passive: false }
+    );
+
+    canvasEl.addEventListener(
+      'touchmove',
+      (e) => {
+        e.preventDefault();
+        const pos = getPosition(e, canvasEl);
+        canvas.draw(pos.x, pos.y);
+      },
+      { passive: false }
+    );
+
+    canvasEl.addEventListener('touchend', () => canvas.stop_drawing());
+  }
+
+  function setupToolButtons(canvas: Canvas, penBtn: Element, eraserBtn: Element): void {
+    penBtn.addEventListener('click', () => {
+      canvas.set_eraser(false);
+      setActiveState(penBtn, true);
+      setActiveState(eraserBtn, false);
+    });
+
+    eraserBtn.addEventListener('click', () => {
+      canvas.set_eraser(true);
+      setActiveState(eraserBtn, true);
+      setActiveState(penBtn, false);
+    });
+  }
+
+  function setupColorControls(
+    canvas: Canvas,
+    colorPicker: HTMLInputElement,
+    colorBtns: NodeListOf<Element>,
+    penBtn: Element,
+    eraserBtn: Element
+  ): void {
+    colorPicker.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      canvas.set_color(target.value);
+      canvas.set_eraser(false);
+      setActiveState(penBtn, true);
+      setActiveState(eraserBtn, false);
+      colorBtns.forEach((btn) => setActiveState(btn, false));
+    });
+
+    colorBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const color = (btn as HTMLElement).dataset.color;
+        if (!color) return;
+
+        canvas.set_color(color);
+        colorPicker.value = color;
+        canvas.set_eraser(false);
+        setActiveState(penBtn, true);
+        setActiveState(eraserBtn, false);
+        colorBtns.forEach((b) => setActiveState(b, false));
+        setActiveState(btn, true);
+      });
+    });
+  }
+
+  function setupSizeSlider(canvas: Canvas, sizeSlider: HTMLInputElement, sizeValue: Element): void {
+    sizeSlider.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      const size = parseInt(target.value, 10);
+      canvas.set_line_width(size);
+      sizeValue.textContent = String(size);
+    });
+  }
+
+  async function initRustCanvas(): Promise<void> {
+    await init();
+
+    const canvasEl = document.getElementById('rust-canvas') as HTMLCanvasElement | null;
+    if (!canvasEl) {
+      console.error('Canvas element not found');
+      return;
+    }
+
+    const dpr = setupCanvasSize(canvasEl);
+    const canvas = new Canvas('rust-canvas', dpr);
+    canvas.clear();
+
+    const penBtn = document.getElementById('penBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const colorPicker = document.getElementById('colorPicker') as HTMLInputElement | null;
+    const colorBtns = document.querySelectorAll('[data-color]');
+    const sizeSlider = document.getElementById('sizeSlider') as HTMLInputElement | null;
+    const sizeValue = document.getElementById('sizeValue');
+    const clearBtn = document.getElementById('clearBtn');
+
+    if (!penBtn || !eraserBtn || !colorPicker || !sizeSlider || !sizeValue || !clearBtn) {
+      console.error('Required elements not found');
+      return;
+    }
+
+    setupDrawingEvents(canvasEl, canvas);
+    setupToolButtons(canvas, penBtn, eraserBtn);
+    setupColorControls(canvas, colorPicker, colorBtns, penBtn, eraserBtn);
+    setupSizeSlider(canvas, sizeSlider, sizeValue);
+
+    clearBtn.addEventListener('click', () => canvas.clear());
+  }
+
+  initRustCanvas();
+</script>

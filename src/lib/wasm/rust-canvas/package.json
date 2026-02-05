@@ -1,0 +1,15 @@
+{
+  "name": "rust-canvas",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "rust_canvas_bg.wasm",
+    "rust_canvas.js",
+    "rust_canvas.d.ts"
+  ],
+  "main": "rust_canvas.js",
+  "types": "rust_canvas.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

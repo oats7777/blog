@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build:wasm": {
+      "outputs": ["pkg/**"],
+      "cache": true
+    },
+    "copy:wasm": {
+      "dependsOn": ["^build:wasm"],
+      "outputs": ["src/lib/wasm/**"],
+      "cache": true
+    },
+    "build": {
+      "dependsOn": ["copy:wasm"],
+      "outputs": ["dist/**"],
+      "cache": true
+    },
+    "dev": {
+      "dependsOn": ["copy:wasm"],
+      "persistent": true,
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "format": {
+      "cache": false
+    }
+  }
+}

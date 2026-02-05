@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import wasm from 'vite-plugin-wasm';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,10 +14,15 @@ export default defineConfig({
     }),
   ],
   vite: {
+    plugins: [wasm()],
     resolve: {
       alias: {
         '@': '/src',
+        '@toys': '/toys',
       },
+    },
+    optimizeDeps: {
+      exclude: ['rust-canvas'],
     },
   },
 });
