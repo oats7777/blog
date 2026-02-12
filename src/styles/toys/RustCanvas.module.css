@@ -175,6 +175,14 @@
     padding: 1rem;
   }
 
+  .actionBtn span {
+    display: none;
+  }
+
+  .actionBtn {
+    padding: 0.5rem;
+  }
+
   #sizeSlider {
     width: 80px;
   }
