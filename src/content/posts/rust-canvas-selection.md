@@ -368,7 +368,7 @@ canvasEl.addEventListener('mousedown', (e) => {
 | 복사 | `clone()` | Rust의 derive가 다 해줌 |
 | 붙여넣기 | `clone()` + 새 ID + 오프셋 | 단순 |
 | 러버밴드 | AABB 교차 검사 | 조건 4개 |
-| 삭제 | `retain(|s| !selected)` | 한 줄 |
+| 삭제 | `retain(\|s\| !selected)` | 한 줄 |
 
 Immediate Mode였다면? 이미 찍힌 픽셀에서 "이건 어떤 스트로크의 일부인가?"를 역추적할 방법이 없다. **데이터를 보존하고 있었기 때문에** 이 모든 게 가능했다.
 
