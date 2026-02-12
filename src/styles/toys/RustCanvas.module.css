@@ -175,6 +175,11 @@
     padding: 1rem;
   }
 
+  .tools,
+  .colors {
+    flex-wrap: wrap;
+  }
+
   .actionBtn span {
     display: none;
   }
