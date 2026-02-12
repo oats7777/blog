@@ -1,5 +1,8 @@
 /* @ts-self-types="./rust_canvas.d.ts" */
 
+/**
+ * 캔버스 메인 구조체
+ */
 export class Canvas {
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -11,15 +14,43 @@ export class Canvas {
         const ptr = this.__destroy_into_raw();
         wasm.__wbg_canvas_free(ptr, 0);
     }
+    /**
+     * 전체 지우기 (모든 스트로크 삭제)
+     */
     clear() {
         wasm.canvas_clear(this.__wbg_ptr);
     }
     /**
+     * 그리기 중 - 점 추가 및 렌더링
      * @param {number} x
      * @param {number} y
      */
     draw(x, y) {
         wasm.canvas_draw(this.__wbg_ptr, x, y);
+    }
+    /**
+     * 그리기 상태 확인
+     * @returns {boolean}
+     */
+    get_is_drawing() {
+        const ret = wasm.canvas_get_is_drawing(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * 지우개 모드 확인
+     * @returns {boolean}
+     */
+    get_is_eraser() {
+        const ret = wasm.canvas_get_is_eraser(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * 스트로크 개수 반환 (디버깅용)
+     * @returns {number}
+     */
+    get_stroke_count() {
+        const ret = wasm.canvas_get_stroke_count(this.__wbg_ptr);
+        return ret >>> 0;
     }
     /**
      * @param {string} canvas_id
@@ -37,6 +68,13 @@ export class Canvas {
         return this;
     }
     /**
+     * 전체 렌더링 (Retained Mode 핵심)
+     */
+    render() {
+        wasm.canvas_render(this.__wbg_ptr);
+    }
+    /**
+     * 색상 설정
      * @param {string} color
      */
     set_color(color) {
@@ -45,24 +83,30 @@ export class Canvas {
         wasm.canvas_set_color(this.__wbg_ptr, ptr0, len0);
     }
     /**
+     * 지우개 모드 설정
      * @param {boolean} is_eraser
      */
     set_eraser(is_eraser) {
         wasm.canvas_set_eraser(this.__wbg_ptr, is_eraser);
     }
     /**
+     * 선 굵기 설정
      * @param {number} width
      */
     set_line_width(width) {
         wasm.canvas_set_line_width(this.__wbg_ptr, width);
     }
     /**
+     * 그리기 시작 - 새 스트로크 생성
      * @param {number} x
      * @param {number} y
      */
     start_drawing(x, y) {
         wasm.canvas_start_drawing(this.__wbg_ptr, x, y);
     }
+    /**
+     * 그리기 종료 - 스트로크 확정
+     */
     stop_drawing() {
         wasm.canvas_stop_drawing(this.__wbg_ptr);
     }
@@ -90,10 +134,6 @@ function __wbg_get_imports() {
             const ret = arg0.call(arg1);
             return ret;
         }, arguments); },
-        __wbg_canvas_415dfbf1f8c8a52d: function(arg0) {
-            const ret = arg0.canvas;
-            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
-        },
         __wbg_document_ee35a3d3ae34ef6c: function(arg0) {
             const ret = arg0.document;
             return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
