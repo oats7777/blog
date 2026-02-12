@@ -15,10 +15,44 @@ export class Canvas {
         wasm.__wbg_canvas_free(ptr, 0);
     }
     /**
+     * Redo 가능 여부
+     * @returns {boolean}
+     */
+    can_redo() {
+        const ret = wasm.canvas_can_redo(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Undo 가능 여부
+     * @returns {boolean}
+     */
+    can_undo() {
+        const ret = wasm.canvas_can_undo(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * 전체 지우기 (모든 스트로크 삭제)
      */
     clear() {
         wasm.canvas_clear(this.__wbg_ptr);
+    }
+    /**
+     * 선택된 스트로크 복사
+     */
+    copy_selected() {
+        wasm.canvas_copy_selected(this.__wbg_ptr);
+    }
+    /**
+     * 선택된 스트로크 삭제
+     */
+    delete_selected() {
+        wasm.canvas_delete_selected(this.__wbg_ptr);
+    }
+    /**
+     * 선택 해제
+     */
+    deselect_all() {
+        wasm.canvas_deselect_all(this.__wbg_ptr);
     }
     /**
      * 그리기 중 - 점 추가 및 렌더링
@@ -27,6 +61,13 @@ export class Canvas {
      */
     draw(x, y) {
         wasm.canvas_draw(this.__wbg_ptr, x, y);
+    }
+    /**
+     * 러버밴드 선택 확정 — 영역 내 스트로크 선택
+     * @param {boolean} shift
+     */
+    finish_rubber_band(shift) {
+        wasm.canvas_finish_rubber_band(this.__wbg_ptr, shift);
     }
     /**
      * 그리기 상태 확인
@@ -45,6 +86,30 @@ export class Canvas {
         return ret !== 0;
     }
     /**
+     * 이동 중인지 확인
+     * @returns {boolean}
+     */
+    get_is_moving() {
+        const ret = wasm.canvas_get_is_moving(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * 러버밴드 드래그 중인지 확인
+     * @returns {boolean}
+     */
+    get_is_rubber_band() {
+        const ret = wasm.canvas_get_is_rubber_band(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * 현재 선택 도구 모드인지 확인
+     * @returns {boolean}
+     */
+    get_is_select_mode() {
+        const ret = wasm.canvas_get_is_select_mode(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * 스트로크 개수 반환 (디버깅용)
      * @returns {number}
      */
@@ -53,10 +118,36 @@ export class Canvas {
         return ret >>> 0;
     }
     /**
+     * 선택된 스트로크가 있는지 확인
+     * @returns {boolean}
+     */
+    has_selection() {
+        const ret = wasm.canvas_has_selection(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * 커서 숨기기
      */
     hide_cursor() {
         wasm.canvas_hide_cursor(this.__wbg_ptr);
+    }
+    /**
+     * 좌표가 선택된 스트로크 위에 있는지 확인
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
+    is_over_selected(x, y) {
+        const ret = wasm.canvas_is_over_selected(this.__wbg_ptr, x, y);
+        return ret !== 0;
+    }
+    /**
+     * 이동 중 - 선택된 스트로크들을 델타만큼 이동
+     * @param {number} x
+     * @param {number} y
+     */
+    move_selected(x, y) {
+        wasm.canvas_move_selected(this.__wbg_ptr, x, y);
     }
     /**
      * @param {string} canvas_id
@@ -74,10 +165,28 @@ export class Canvas {
         return this;
     }
     /**
+     * 클립보드에서 붙여넣기 (오프셋 적용, 새 ID 부여)
+     */
+    paste() {
+        wasm.canvas_paste(this.__wbg_ptr);
+    }
+    /**
+     * 다시 실행
+     */
+    redo() {
+        wasm.canvas_redo(this.__wbg_ptr);
+    }
+    /**
      * 전체 렌더링 (Retained Mode 핵심)
      */
     render() {
         wasm.canvas_render(this.__wbg_ptr);
+    }
+    /**
+     * 전체 선택
+     */
+    select_all() {
+        wasm.canvas_select_all(this.__wbg_ptr);
     }
     /**
      * 색상 설정
@@ -103,6 +212,13 @@ export class Canvas {
         wasm.canvas_set_line_width(this.__wbg_ptr, width);
     }
     /**
+     * 선택 도구 모드 설정
+     * @param {boolean} is_select
+     */
+    set_select_mode(is_select) {
+        wasm.canvas_set_select_mode(this.__wbg_ptr, is_select);
+    }
+    /**
      * 그리기 시작 - 새 스트로크 생성
      * @param {number} x
      * @param {number} y
@@ -111,18 +227,65 @@ export class Canvas {
         wasm.canvas_start_drawing(this.__wbg_ptr, x, y);
     }
     /**
+     * 이동 시작
+     * @param {number} x
+     * @param {number} y
+     */
+    start_move(x, y) {
+        wasm.canvas_start_move(this.__wbg_ptr, x, y);
+    }
+    /**
+     * 러버밴드 선택 시작
+     * @param {number} x
+     * @param {number} y
+     */
+    start_rubber_band(x, y) {
+        wasm.canvas_start_rubber_band(this.__wbg_ptr, x, y);
+    }
+    /**
      * 그리기 종료 - 스트로크 확정
      */
     stop_drawing() {
         wasm.canvas_stop_drawing(this.__wbg_ptr);
     }
     /**
-     * 커서 위치 업데이트 (지우개 미리보기용)
+     * 이동 종료
+     */
+    stop_move() {
+        wasm.canvas_stop_move(this.__wbg_ptr);
+    }
+    /**
+     * 좌표에서 스트로크 선택 시도 (역순 탐색으로 최상위 우선)
+     * @param {number} x
+     * @param {number} y
+     * @param {boolean} shift
+     * @returns {boolean}
+     */
+    try_select_at(x, y, shift) {
+        const ret = wasm.canvas_try_select_at(this.__wbg_ptr, x, y, shift);
+        return ret !== 0;
+    }
+    /**
+     * 실행 취소
+     */
+    undo() {
+        wasm.canvas_undo(this.__wbg_ptr);
+    }
+    /**
+     * 커서 위치 업데이트
      * @param {number} x
      * @param {number} y
      */
     update_cursor(x, y) {
         wasm.canvas_update_cursor(this.__wbg_ptr, x, y);
+    }
+    /**
+     * 러버밴드 드래그 중 — 영역 업데이트 및 렌더링
+     * @param {number} x
+     * @param {number} y
+     */
+    update_rubber_band(x, y) {
+        wasm.canvas_update_rubber_band(this.__wbg_ptr, x, y);
     }
 }
 if (Symbol.dispose) Canvas.prototype[Symbol.dispose] = Canvas.prototype.free;
@@ -220,6 +383,9 @@ function __wbg_get_imports() {
         __wbg_push_8ffdcb2063340ba5: function(arg0, arg1) {
             const ret = arg0.push(arg1);
             return ret;
+        },
+        __wbg_rect_967665357db991e9: function(arg0, arg1, arg2, arg3, arg4) {
+            arg0.rect(arg1, arg2, arg3, arg4);
         },
         __wbg_restore_0d233789d098ba64: function(arg0) {
             arg0.restore();

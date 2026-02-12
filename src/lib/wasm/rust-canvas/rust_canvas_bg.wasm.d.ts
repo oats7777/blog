@@ -1,7 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export const canvas_render: (a: number) => void;
 export const __wbg_canvas_free: (a: number, b: number) => void;
 export const canvas_new: (a: number, b: number, c: number) => [number, number, number];
 export const canvas_set_color: (a: number, b: number, c: number) => void;
@@ -16,7 +15,30 @@ export const canvas_draw: (a: number, b: number, c: number) => void;
 export const canvas_stop_drawing: (a: number) => void;
 export const canvas_clear: (a: number) => void;
 export const canvas_get_stroke_count: (a: number) => number;
+export const canvas_set_select_mode: (a: number, b: number) => void;
+export const canvas_get_is_select_mode: (a: number) => number;
+export const canvas_try_select_at: (a: number, b: number, c: number, d: number) => number;
+export const canvas_select_all: (a: number) => void;
+export const canvas_deselect_all: (a: number) => void;
+export const canvas_has_selection: (a: number) => number;
+export const canvas_is_over_selected: (a: number, b: number, c: number) => number;
+export const canvas_get_is_moving: (a: number) => number;
+export const canvas_start_move: (a: number, b: number, c: number) => void;
+export const canvas_move_selected: (a: number, b: number, c: number) => void;
+export const canvas_stop_move: (a: number) => void;
+export const canvas_copy_selected: (a: number) => void;
+export const canvas_paste: (a: number) => void;
+export const canvas_delete_selected: (a: number) => void;
+export const canvas_can_undo: (a: number) => number;
+export const canvas_can_redo: (a: number) => number;
+export const canvas_undo: (a: number) => void;
+export const canvas_redo: (a: number) => void;
+export const canvas_start_rubber_band: (a: number, b: number, c: number) => void;
+export const canvas_update_rubber_band: (a: number, b: number, c: number) => void;
+export const canvas_finish_rubber_band: (a: number, b: number) => void;
+export const canvas_get_is_rubber_band: (a: number) => number;
 export const main: () => void;
+export const canvas_render: (a: number) => void;
 export const __wbindgen_exn_store: (a: number) => void;
 export const __externref_table_alloc: () => number;
 export const __wbindgen_externrefs: WebAssembly.Table;

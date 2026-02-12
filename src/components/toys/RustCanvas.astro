@@ -7,6 +7,12 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     <div class={styles.toolGroup}>
       <label>도구</label>
       <div class={styles.tools}>
+        <button id="selectBtn" class={styles.toolBtn} data-active="false" title="선택 (V)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+            <path d="M13 13l6 6" />
+          </svg>
+        </button>
         <button id="penBtn" class={styles.toolBtn} data-active="true" title="펜">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 19l7-7 3 3-7 7-3-3z" />
@@ -18,6 +24,54 @@ import styles from '@/styles/toys/RustCanvas.module.css';
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L13.4 3c.8-.8 2-.8 2.8 0L21 7.8c.8.8.8 2 0 2.8L10 20" />
           </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class={styles.toolGroup}>
+      <label>편집</label>
+      <div class={styles.tools}>
+        <button id="undoBtn" class={styles.actionBtn} title="실행취소 (Ctrl+Z)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
+          </svg>
+          <span>취소</span>
+        </button>
+        <button id="redoBtn" class={styles.actionBtn} title="다시실행 (Ctrl+Shift+Z)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 11-2.13-9.36L23 10" />
+          </svg>
+          <span>다시</span>
+        </button>
+        <button id="copyBtn" class={styles.actionBtn} title="복사 (Ctrl+C)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+          </svg>
+          <span>복사</span>
+        </button>
+        <button id="pasteBtn" class={styles.actionBtn} title="붙여넣기 (Ctrl+V)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+          </svg>
+          <span>붙여넣기</span>
+        </button>
+        <button id="deleteBtn" class={styles.actionBtn} title="삭제 (Delete)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+          </svg>
+          <span>삭제</span>
+        </button>
+        <button id="selectAllBtn" class={styles.actionBtn} title="전체선택 (Ctrl+A)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-dasharray="4 2" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          <span>전체선택</span>
         </button>
       </div>
     </div>
@@ -62,8 +116,17 @@ import styles from '@/styles/toys/RustCanvas.module.css';
   const LOGICAL_WIDTH = 800;
   const LOGICAL_HEIGHT = 500;
 
+  let currentTool: 'pen' | 'eraser' | 'select' = 'pen';
+
+  // getBoundingClientRect 캐시 (드래그 중 레이아웃 재계산 방지)
+  let cachedRect: DOMRect | null = null;
+
+  function cacheRect(canvasEl: HTMLCanvasElement): void {
+    cachedRect = canvasEl.getBoundingClientRect();
+  }
+
   function getPosition(e: MouseEvent | TouchEvent, canvasEl: HTMLCanvasElement): Position {
-    const rect = canvasEl.getBoundingClientRect();
+    const rect = cachedRect || canvasEl.getBoundingClientRect();
     const scaleX = LOGICAL_WIDTH / rect.width;
     const scaleY = LOGICAL_HEIGHT / rect.height;
 
@@ -97,36 +160,107 @@ import styles from '@/styles/toys/RustCanvas.module.css';
   }
 
   function setupDrawingEvents(canvasEl: HTMLCanvasElement, canvas: Canvas): void {
+    // Mouse events
     canvasEl.addEventListener('mousedown', (e) => {
+      cacheRect(canvasEl);
       const pos = getPosition(e, canvasEl);
-      canvas.start_drawing(pos.x, pos.y);
+
+      if (currentTool === 'select') {
+        // 이미 선택된 스트로크 위 클릭 → 이동
+        if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
+          canvas.start_move(pos.x, pos.y);
+        } else {
+          // 스트로크 위 클릭 → 개별 선택
+          const hit = canvas.try_select_at(pos.x, pos.y, e.shiftKey);
+          if (hit && canvas.is_over_selected(pos.x, pos.y)) {
+            canvas.start_move(pos.x, pos.y);
+          } else if (!hit) {
+            // 빈 영역 클릭 → 러버밴드 시작
+            canvas.start_rubber_band(pos.x, pos.y);
+          }
+          canvas.render();
+        }
+      } else {
+        canvas.start_drawing(pos.x, pos.y);
+      }
     });
 
     canvasEl.addEventListener('mousemove', (e) => {
       const pos = getPosition(e, canvasEl);
-      canvas.update_cursor(pos.x, pos.y);
 
-      if (canvas.get_is_drawing()) {
-        canvas.draw(pos.x, pos.y);
+      if (currentTool === 'select') {
+        if (canvas.get_is_rubber_band()) {
+          canvas.update_rubber_band(pos.x, pos.y);
+          canvasEl.style.cursor = 'crosshair';
+        } else if (canvas.get_is_moving()) {
+          canvas.move_selected(pos.x, pos.y);
+        } else {
+          // 이동/러버밴드 아닌 hover — 커서만 변경, render 스킵
+          if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
+            canvasEl.style.cursor = 'move';
+          } else {
+            canvasEl.style.cursor = 'default';
+          }
+        }
       } else {
-        canvas.render();
+        canvas.update_cursor(pos.x, pos.y);
+        if (canvas.get_is_drawing()) {
+          canvas.draw(pos.x, pos.y);
+        } else {
+          canvas.render();
+        }
       }
     });
 
-    canvasEl.addEventListener('mouseup', () => canvas.stop_drawing());
-
-    canvasEl.addEventListener('mouseleave', () => {
-      canvas.stop_drawing();
-      canvas.hide_cursor();
-      canvas.render();
+    canvasEl.addEventListener('mouseup', (e) => {
+      if (currentTool === 'select') {
+        if (canvas.get_is_rubber_band()) {
+          canvas.finish_rubber_band(e.shiftKey);
+        }
+        canvas.stop_move();
+      } else {
+        canvas.stop_drawing();
+      }
+      cachedRect = null;
     });
 
+    canvasEl.addEventListener('mouseleave', (e) => {
+      if (currentTool === 'select') {
+        if (canvas.get_is_rubber_band()) {
+          canvas.finish_rubber_band(e.shiftKey);
+        }
+        canvas.stop_move();
+      } else {
+        canvas.stop_drawing();
+      }
+      canvas.hide_cursor();
+      canvas.render();
+      cachedRect = null;
+    });
+
+    // Touch events
     canvasEl.addEventListener(
       'touchstart',
       (e) => {
         e.preventDefault();
+        cacheRect(canvasEl);
         const pos = getPosition(e, canvasEl);
-        canvas.start_drawing(pos.x, pos.y);
+
+        if (currentTool === 'select') {
+          if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
+            canvas.start_move(pos.x, pos.y);
+          } else {
+            const hit = canvas.try_select_at(pos.x, pos.y, false);
+            if (hit && canvas.is_over_selected(pos.x, pos.y)) {
+              canvas.start_move(pos.x, pos.y);
+            } else if (!hit) {
+              canvas.start_rubber_band(pos.x, pos.y);
+            }
+            canvas.render();
+          }
+        } else {
+          canvas.start_drawing(pos.x, pos.y);
+        }
       },
       { passive: false }
     );
@@ -136,26 +270,93 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       (e) => {
         e.preventDefault();
         const pos = getPosition(e, canvasEl);
-        canvas.draw(pos.x, pos.y);
+
+        if (currentTool === 'select') {
+          if (canvas.get_is_rubber_band()) {
+            canvas.update_rubber_band(pos.x, pos.y);
+          } else if (canvas.get_is_moving()) {
+            canvas.move_selected(pos.x, pos.y);
+          }
+        } else {
+          canvas.draw(pos.x, pos.y);
+        }
       },
       { passive: false }
     );
 
-    canvasEl.addEventListener('touchend', () => canvas.stop_drawing());
+    canvasEl.addEventListener('touchend', () => {
+      if (currentTool === 'select') {
+        if (canvas.get_is_rubber_band()) {
+          canvas.finish_rubber_band(false);
+        }
+        canvas.stop_move();
+      } else {
+        canvas.stop_drawing();
+      }
+      cachedRect = null;
+    });
   }
 
-  function setupToolButtons(canvas: Canvas, penBtn: Element, eraserBtn: Element): void {
-    penBtn.addEventListener('click', () => {
-      canvas.set_eraser(false);
-      setActiveState(penBtn, true);
-      setActiveState(eraserBtn, false);
+  function setupToolButtons(
+    canvas: Canvas,
+    penBtn: Element,
+    eraserBtn: Element,
+    selectBtn: Element,
+    canvasEl: HTMLCanvasElement
+  ): void {
+    const allToolBtns = [selectBtn, penBtn, eraserBtn];
+
+    function activateTool(activeBtn: Element, tool: 'pen' | 'eraser' | 'select') {
+      allToolBtns.forEach((btn) => setActiveState(btn, btn === activeBtn));
+      currentTool = tool;
+
+      canvas.set_eraser(tool === 'eraser');
+      canvas.set_select_mode(tool === 'select');
+
+      if (tool === 'select') {
+        canvasEl.style.cursor = 'default';
+      } else {
+        canvasEl.style.cursor = 'none';
+        canvas.deselect_all();
+      }
+
       canvas.render();
+    }
+
+    selectBtn.addEventListener('click', () => activateTool(selectBtn, 'select'));
+    penBtn.addEventListener('click', () => activateTool(penBtn, 'pen'));
+    eraserBtn.addEventListener('click', () => activateTool(eraserBtn, 'eraser'));
+  }
+
+  function setupActionButtons(canvas: Canvas): void {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+
+    undoBtn?.addEventListener('click', () => canvas.undo());
+    redoBtn?.addEventListener('click', () => canvas.redo());
+
+    copyBtn?.addEventListener('click', () => {
+      if (canvas.has_selection()) {
+        canvas.copy_selected();
+      }
     });
 
-    eraserBtn.addEventListener('click', () => {
-      canvas.set_eraser(true);
-      setActiveState(eraserBtn, true);
-      setActiveState(penBtn, false);
+    pasteBtn?.addEventListener('click', () => {
+      canvas.paste();
+    });
+
+    deleteBtn?.addEventListener('click', () => {
+      if (canvas.has_selection()) {
+        canvas.delete_selected();
+      }
+    });
+
+    selectAllBtn?.addEventListener('click', () => {
+      canvas.select_all();
       canvas.render();
     });
   }
@@ -165,14 +366,19 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     colorPicker: HTMLInputElement,
     colorBtns: NodeListOf<Element>,
     penBtn: Element,
-    eraserBtn: Element
+    eraserBtn: Element,
+    selectBtn: Element,
+    canvasEl: HTMLCanvasElement
   ): void {
+    const allToolBtns = [selectBtn, penBtn, eraserBtn];
+
     colorPicker.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
       canvas.set_color(target.value);
-      canvas.set_eraser(false);
-      setActiveState(penBtn, true);
-      setActiveState(eraserBtn, false);
+      currentTool = 'pen';
+      allToolBtns.forEach((btn) => setActiveState(btn, btn === penBtn));
+      canvasEl.style.cursor = 'none';
+      canvas.deselect_all();
       colorBtns.forEach((btn) => setActiveState(btn, false));
       canvas.render();
     });
@@ -184,9 +390,10 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
         canvas.set_color(color);
         colorPicker.value = color;
-        canvas.set_eraser(false);
-        setActiveState(penBtn, true);
-        setActiveState(eraserBtn, false);
+        currentTool = 'pen';
+        allToolBtns.forEach((b) => setActiveState(b, b === penBtn));
+        canvasEl.style.cursor = 'none';
+        canvas.deselect_all();
         colorBtns.forEach((b) => setActiveState(b, false));
         setActiveState(btn, true);
         canvas.render();
@@ -204,6 +411,54 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     });
   }
 
+  function setupKeyboardShortcuts(canvas: Canvas): void {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (canvas.has_selection()) {
+          e.preventDefault();
+          canvas.delete_selected();
+        }
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z' && !e.shiftKey) {
+          e.preventDefault();
+          canvas.undo();
+        }
+        if (e.key === 'z' && e.shiftKey) {
+          e.preventDefault();
+          canvas.redo();
+        }
+        if (e.key === 'y') {
+          e.preventDefault();
+          canvas.redo();
+        }
+        if (e.key === 'c') {
+          if (canvas.has_selection()) {
+            e.preventDefault();
+            canvas.copy_selected();
+          }
+        }
+        if (e.key === 'v') {
+          e.preventDefault();
+          canvas.paste();
+        }
+        if (e.key === 'a') {
+          if (currentTool === 'select') {
+            e.preventDefault();
+            canvas.select_all();
+            canvas.render();
+          }
+        }
+      }
+
+      if (e.key === 'Escape') {
+        canvas.deselect_all();
+        canvas.render();
+      }
+    });
+  }
+
   async function initRustCanvas(): Promise<void> {
     await init();
 
@@ -217,6 +472,7 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     const canvas = new Canvas('rust-canvas', dpr);
     canvas.clear();
 
+    const selectBtn = document.getElementById('selectBtn');
     const penBtn = document.getElementById('penBtn');
     const eraserBtn = document.getElementById('eraserBtn');
     const colorPicker = document.getElementById('colorPicker') as HTMLInputElement | null;
@@ -225,7 +481,7 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     const sizeValue = document.getElementById('sizeValue');
     const clearBtn = document.getElementById('clearBtn');
 
-    if (!penBtn || !eraserBtn || !colorPicker || !sizeSlider || !sizeValue || !clearBtn) {
+    if (!selectBtn || !penBtn || !eraserBtn || !colorPicker || !sizeSlider || !sizeValue || !clearBtn) {
       console.error('Required elements not found');
       return;
     }
@@ -233,9 +489,11 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     canvasEl.style.cursor = 'none';
 
     setupDrawingEvents(canvasEl, canvas);
-    setupToolButtons(canvas, penBtn, eraserBtn);
-    setupColorControls(canvas, colorPicker, colorBtns, penBtn, eraserBtn);
+    setupToolButtons(canvas, penBtn, eraserBtn, selectBtn, canvasEl);
+    setupActionButtons(canvas);
+    setupColorControls(canvas, colorPicker, colorBtns, penBtn, eraserBtn, selectBtn, canvasEl);
     setupSizeSlider(canvas, sizeSlider, sizeValue);
+    setupKeyboardShortcuts(canvas);
 
     clearBtn.addEventListener('click', () => canvas.clear());
   }

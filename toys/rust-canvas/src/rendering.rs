@@ -36,10 +36,7 @@ impl Canvas {
         self.ctx.save();
 
         if self.is_eraser {
-            let dash_pattern = js_sys::Array::new();
-            dash_pattern.push(&JsValue::from_f64(4.0));
-            dash_pattern.push(&JsValue::from_f64(4.0));
-            let _ = self.ctx.set_line_dash(&dash_pattern);
+            let _ = self.ctx.set_line_dash(&self.dash_cursor);
             self.ctx.set_stroke_style_str("#999999");
         } else {
             self.ctx.set_stroke_style_str(&self.color);
@@ -76,6 +73,12 @@ impl Canvas {
         if let Some(ref current) = self.current_stroke {
             self.draw_stroke(current);
         }
+
+        // 선택 하이라이트
+        self.draw_selection_highlight();
+
+        // 러버밴드 (드래그 영역) 선택
+        self.draw_rubber_band();
 
         // 커서 미리보기
         if self.show_cursor {
