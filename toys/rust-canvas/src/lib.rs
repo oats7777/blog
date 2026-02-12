@@ -1,41 +1,33 @@
-use serde::{Deserialize, Serialize};
+mod models;
+mod rendering;
+
 use wasm_bindgen::prelude::*;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 
-/// 2D 점 구조체
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Point {
-    pub x: f64,
-    pub y: f64,
-}
-
-/// 스트로크 (펜으로 그린 선)
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Stroke {
-    pub id: u32,
-    pub points: Vec<Point>,
-    pub color: String,
-    pub width: f64,
-}
+use crate::models::{Point, Stroke};
 
 /// 캔버스 메인 구조체
 #[wasm_bindgen]
 pub struct Canvas {
-    ctx: CanvasRenderingContext2d,
-    canvas_width: f64,
-    canvas_height: f64,
-    dpr: f64,
+    pub(crate) ctx: CanvasRenderingContext2d,
+    pub(crate) canvas_width: f64,
+    pub(crate) canvas_height: f64,
 
     // Retained mode: 모든 스트로크 저장
-    strokes: Vec<Stroke>,
-    current_stroke: Option<Stroke>,
-    next_id: u32,
+    pub(crate) strokes: Vec<Stroke>,
+    pub(crate) current_stroke: Option<Stroke>,
+    pub(crate) next_id: u32,
 
     // 현재 도구 상태
-    color: String,
-    line_width: f64,
-    is_drawing: bool,
-    is_eraser: bool,
+    pub(crate) color: String,
+    pub(crate) line_width: f64,
+    pub(crate) is_drawing: bool,
+    pub(crate) is_eraser: bool,
+
+    // 지우개 커서 미리보기 상태
+    pub(crate) cursor_x: f64,
+    pub(crate) cursor_y: f64,
+    pub(crate) show_cursor: bool,
 }
 
 #[wasm_bindgen]
@@ -69,7 +61,6 @@ impl Canvas {
             ctx,
             canvas_width,
             canvas_height,
-            dpr,
             strokes: Vec::new(),
             current_stroke: None,
             next_id: 1,
@@ -77,6 +68,9 @@ impl Canvas {
             line_width: 5.0,
             is_drawing: false,
             is_eraser: false,
+            cursor_x: 0.0,
+            cursor_y: 0.0,
+            show_cursor: false,
         })
     }
 
@@ -109,6 +103,20 @@ impl Canvas {
     #[wasm_bindgen]
     pub fn get_is_eraser(&self) -> bool {
         self.is_eraser
+    }
+
+    /// 커서 위치 업데이트 (지우개 미리보기용)
+    #[wasm_bindgen]
+    pub fn update_cursor(&mut self, x: f64, y: f64) {
+        self.cursor_x = x;
+        self.cursor_y = y;
+        self.show_cursor = true;
+    }
+
+    /// 커서 숨기기
+    #[wasm_bindgen]
+    pub fn hide_cursor(&mut self) {
+        self.show_cursor = false;
     }
 
     /// 그리기 시작 - 새 스트로크 생성
@@ -149,47 +157,6 @@ impl Canvas {
             if stroke.points.len() > 1 {
                 self.strokes.push(stroke);
             }
-        }
-    }
-
-    /// 캔버스 클리어 (배경만)
-    fn clear_canvas(&self) {
-        self.ctx.set_fill_style_str("#ffffff");
-        self.ctx.fill_rect(0.0, 0.0, self.canvas_width, self.canvas_height);
-    }
-
-    /// 단일 스트로크 그리기
-    fn draw_stroke(&self, stroke: &Stroke) {
-        if stroke.points.len() < 2 {
-            return;
-        }
-
-        self.ctx.begin_path();
-        self.ctx.set_stroke_style_str(&stroke.color);
-        self.ctx.set_line_width(stroke.width);
-
-        let first = &stroke.points[0];
-        self.ctx.move_to(first.x, first.y);
-
-        for point in stroke.points.iter().skip(1) {
-            self.ctx.line_to(point.x, point.y);
-        }
-        self.ctx.stroke();
-    }
-
-    /// 전체 렌더링 (Retained Mode 핵심)
-    #[wasm_bindgen]
-    pub fn render(&self) {
-        self.clear_canvas();
-
-        // 저장된 모든 스트로크 그리기
-        for stroke in &self.strokes {
-            self.draw_stroke(stroke);
-        }
-
-        // 현재 그리는 중인 스트로크
-        if let Some(ref current) = self.current_stroke {
-            self.draw_stroke(current);
         }
     }
 

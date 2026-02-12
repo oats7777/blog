@@ -27,6 +27,10 @@ export class Canvas {
      * 스트로크 개수 반환 (디버깅용)
      */
     get_stroke_count(): number;
+    /**
+     * 커서 숨기기
+     */
+    hide_cursor(): void;
     constructor(canvas_id: string, dpr: number);
     /**
      * 전체 렌더링 (Retained Mode 핵심)
@@ -52,6 +56,10 @@ export class Canvas {
      * 그리기 종료 - 스트로크 확정
      */
     stop_drawing(): void;
+    /**
+     * 커서 위치 업데이트 (지우개 미리보기용)
+     */
+    update_cursor(x: number, y: number): void;
 }
 
 export function main(): void;
@@ -60,6 +68,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
+    readonly canvas_render: (a: number) => void;
     readonly __wbg_canvas_free: (a: number, b: number) => void;
     readonly canvas_new: (a: number, b: number, c: number) => [number, number, number];
     readonly canvas_set_color: (a: number, b: number, c: number) => void;
@@ -67,10 +76,11 @@ export interface InitOutput {
     readonly canvas_set_eraser: (a: number, b: number) => void;
     readonly canvas_get_is_drawing: (a: number) => number;
     readonly canvas_get_is_eraser: (a: number) => number;
+    readonly canvas_update_cursor: (a: number, b: number, c: number) => void;
+    readonly canvas_hide_cursor: (a: number) => void;
     readonly canvas_start_drawing: (a: number, b: number, c: number) => void;
     readonly canvas_draw: (a: number, b: number, c: number) => void;
     readonly canvas_stop_drawing: (a: number) => void;
-    readonly canvas_render: (a: number) => void;
     readonly canvas_clear: (a: number) => void;
     readonly canvas_get_stroke_count: (a: number) => number;
     readonly main: () => void;

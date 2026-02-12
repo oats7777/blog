@@ -104,11 +104,22 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
     canvasEl.addEventListener('mousemove', (e) => {
       const pos = getPosition(e, canvasEl);
-      canvas.draw(pos.x, pos.y);
+      canvas.update_cursor(pos.x, pos.y);
+
+      if (canvas.get_is_drawing()) {
+        canvas.draw(pos.x, pos.y);
+      } else {
+        canvas.render();
+      }
     });
 
     canvasEl.addEventListener('mouseup', () => canvas.stop_drawing());
-    canvasEl.addEventListener('mouseleave', () => canvas.stop_drawing());
+
+    canvasEl.addEventListener('mouseleave', () => {
+      canvas.stop_drawing();
+      canvas.hide_cursor();
+      canvas.render();
+    });
 
     canvasEl.addEventListener(
       'touchstart',
@@ -138,12 +149,14 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       canvas.set_eraser(false);
       setActiveState(penBtn, true);
       setActiveState(eraserBtn, false);
+      canvas.render();
     });
 
     eraserBtn.addEventListener('click', () => {
       canvas.set_eraser(true);
       setActiveState(eraserBtn, true);
       setActiveState(penBtn, false);
+      canvas.render();
     });
   }
 
@@ -161,6 +174,7 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       setActiveState(penBtn, true);
       setActiveState(eraserBtn, false);
       colorBtns.forEach((btn) => setActiveState(btn, false));
+      canvas.render();
     });
 
     colorBtns.forEach((btn) => {
@@ -175,6 +189,7 @@ import styles from '@/styles/toys/RustCanvas.module.css';
         setActiveState(eraserBtn, false);
         colorBtns.forEach((b) => setActiveState(b, false));
         setActiveState(btn, true);
+        canvas.render();
       });
     });
   }
@@ -185,6 +200,7 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       const size = parseInt(target.value, 10);
       canvas.set_line_width(size);
       sizeValue.textContent = String(size);
+      canvas.render();
     });
   }
 
@@ -213,6 +229,8 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       console.error('Required elements not found');
       return;
     }
+
+    canvasEl.style.cursor = 'none';
 
     setupDrawingEvents(canvasEl, canvas);
     setupToolButtons(canvas, penBtn, eraserBtn);
