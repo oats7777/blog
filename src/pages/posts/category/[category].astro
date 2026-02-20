@@ -40,7 +40,11 @@ const allPosts = await getCollection('posts');
 // 현재 카테고리의 포스트만 필터링
 const categoryPosts: BlogCardProps[] = allPosts
   .filter((post: PostEntry) => !post.data.draft && post.data.category === category)
-  .sort((a: PostEntry, b: PostEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .sort((a: PostEntry, b: PostEntry) => {
+    const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+    return (a.data.order ?? 0) - (b.data.order ?? 0);
+  })
   .map(
     (post: PostEntry): BlogCardProps => ({
       title: post.data.title,

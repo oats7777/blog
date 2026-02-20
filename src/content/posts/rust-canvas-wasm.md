@@ -2,6 +2,7 @@
 title: 'Rust + WASM으로 브라우저 그림판 만들기: 아키텍처 설계부터 리팩토링까지'
 description: 'Canvas API의 Immediate Mode 한계를 Retained Mode로 극복하고, Figma의 렌더링 아키텍처와 비교하며 배운 것들'
 date: '2026-02-12'
+order: 1
 category: 'WebAssembly'
 tags: ['Rust', 'WebAssembly', 'Canvas API', 'Architecture']
 readTime: '25분 읽기'

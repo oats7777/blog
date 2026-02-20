@@ -24,7 +24,11 @@ const allPosts = await getCollection('posts');
 // 날짜순으로 정렬
 const posts: BlogCardProps[] = allPosts
   .filter((post: PostEntry) => !post.data.draft) // 초안이 아닌 글만
-  .sort((a: PostEntry, b: PostEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .sort((a: PostEntry, b: PostEntry) => {
+    const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+    return (a.data.order ?? 0) - (b.data.order ?? 0);
+  })
   .map(
     (post: PostEntry): BlogCardProps => ({
       title: post.data.title,

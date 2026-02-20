@@ -26,7 +26,11 @@ const allPublishedPosts = allPosts.filter((post: PostEntry) => !post.data.draft)
 
 // 날짜순으로 정렬하고 최신 3개 포스트만 가져오기
 const recentPosts: BlogCardProps[] = allPublishedPosts
-  .sort((a: PostEntry, b: PostEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .sort((a: PostEntry, b: PostEntry) => {
+    const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+    return (a.data.order ?? 0) - (b.data.order ?? 0);
+  })
   .slice(0, 3)
   .map(
     (post: PostEntry): BlogCardProps => ({

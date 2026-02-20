@@ -2,6 +2,7 @@
 title: '그림판에 선택 도구 만들기: 히트 테스트부터 러버밴드까지'
 description: 'Retained Mode 데이터 모델 위에 선택, 이동, 복사, 붙여넣기, Undo/Redo를 구현하며 배운 것들'
 date: '2026-02-12'
+order: 2
 category: 'WebAssembly'
 tags: ['Rust', 'WebAssembly', 'Canvas API', 'Hit Testing']
 readTime: '15분 읽기'
