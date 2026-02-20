@@ -1,8 +1,5 @@
 /* @ts-self-types="./rust_canvas.d.ts" */
 
-/**
- * 캔버스 메인 구조체
- */
 export class Canvas {
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -15,7 +12,6 @@ export class Canvas {
         wasm.__wbg_canvas_free(ptr, 0);
     }
     /**
-     * Redo 가능 여부
      * @returns {boolean}
      */
     can_redo() {
@@ -23,39 +19,25 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * Undo 가능 여부
      * @returns {boolean}
      */
     can_undo() {
         const ret = wasm.canvas_can_undo(this.__wbg_ptr);
         return ret !== 0;
     }
-    /**
-     * 전체 지우기 (모든 스트로크 삭제)
-     */
     clear() {
         wasm.canvas_clear(this.__wbg_ptr);
     }
-    /**
-     * 선택된 스트로크 복사
-     */
     copy_selected() {
         wasm.canvas_copy_selected(this.__wbg_ptr);
     }
-    /**
-     * 선택된 스트로크 삭제
-     */
     delete_selected() {
         wasm.canvas_delete_selected(this.__wbg_ptr);
     }
-    /**
-     * 선택 해제
-     */
     deselect_all() {
         wasm.canvas_deselect_all(this.__wbg_ptr);
     }
     /**
-     * 그리기 중 - 점 추가 및 렌더링
      * @param {number} x
      * @param {number} y
      */
@@ -63,14 +45,33 @@ export class Canvas {
         wasm.canvas_draw(this.__wbg_ptr, x, y);
     }
     /**
-     * 러버밴드 선택 확정 — 영역 내 스트로크 선택
+     * @returns {string}
+     */
+    export_svg() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.canvas_export_svg(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
      * @param {boolean} shift
      */
     finish_rubber_band(shift) {
         wasm.canvas_finish_rubber_band(this.__wbg_ptr, shift);
     }
+    finish_shape() {
+        wasm.canvas_finish_shape(this.__wbg_ptr);
+    }
+    fit_to_view() {
+        wasm.canvas_fit_to_view(this.__wbg_ptr);
+    }
     /**
-     * 그리기 상태 확인
      * @returns {boolean}
      */
     get_is_drawing() {
@@ -78,7 +79,13 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 지우개 모드 확인
+     * @returns {boolean}
+     */
+    get_is_drawing_shape() {
+        const ret = wasm.canvas_get_is_drawing_shape(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * @returns {boolean}
      */
     get_is_eraser() {
@@ -86,7 +93,6 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 이동 중인지 확인
      * @returns {boolean}
      */
     get_is_moving() {
@@ -94,7 +100,13 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 러버밴드 드래그 중인지 확인
+     * @returns {boolean}
+     */
+    get_is_panning() {
+        const ret = wasm.canvas_get_is_panning(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * @returns {boolean}
      */
     get_is_rubber_band() {
@@ -102,7 +114,6 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 현재 선택 도구 모드인지 확인
      * @returns {boolean}
      */
     get_is_select_mode() {
@@ -110,7 +121,6 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 스트로크 개수 반환 (디버깅용)
      * @returns {number}
      */
     get_stroke_count() {
@@ -118,21 +128,23 @@ export class Canvas {
         return ret >>> 0;
     }
     /**
-     * 선택된 스트로크가 있는지 확인
+     * @returns {number}
+     */
+    get_zoom() {
+        const ret = wasm.canvas_get_zoom(this.__wbg_ptr);
+        return ret;
+    }
+    /**
      * @returns {boolean}
      */
     has_selection() {
         const ret = wasm.canvas_has_selection(this.__wbg_ptr);
         return ret !== 0;
     }
-    /**
-     * 커서 숨기기
-     */
     hide_cursor() {
         wasm.canvas_hide_cursor(this.__wbg_ptr);
     }
     /**
-     * 좌표가 선택된 스트로크 위에 있는지 확인
      * @param {number} x
      * @param {number} y
      * @returns {boolean}
@@ -142,7 +154,13 @@ export class Canvas {
         return ret !== 0;
     }
     /**
-     * 이동 중 - 선택된 스트로크들을 델타만큼 이동
+     * @returns {boolean}
+     */
+    is_shape_tool() {
+        const ret = wasm.canvas_is_shape_tool(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * @param {number} x
      * @param {number} y
      */
@@ -164,32 +182,38 @@ export class Canvas {
         CanvasFinalization.register(this, this.__wbg_ptr, this);
         return this;
     }
-    /**
-     * 클립보드에서 붙여넣기 (오프셋 적용, 새 ID 부여)
-     */
     paste() {
         wasm.canvas_paste(this.__wbg_ptr);
     }
-    /**
-     * 다시 실행
-     */
     redo() {
         wasm.canvas_redo(this.__wbg_ptr);
     }
-    /**
-     * 전체 렌더링 (Retained Mode 핵심)
-     */
     render() {
         wasm.canvas_render(this.__wbg_ptr);
     }
+    reset_view() {
+        wasm.canvas_reset_view(this.__wbg_ptr);
+    }
     /**
-     * 전체 선택
+     * @param {number} sx
+     * @returns {number}
      */
+    screen_to_world_x(sx) {
+        const ret = wasm.canvas_screen_to_world_x(this.__wbg_ptr, sx);
+        return ret;
+    }
+    /**
+     * @param {number} sy
+     * @returns {number}
+     */
+    screen_to_world_y(sy) {
+        const ret = wasm.canvas_screen_to_world_y(this.__wbg_ptr, sy);
+        return ret;
+    }
     select_all() {
         wasm.canvas_select_all(this.__wbg_ptr);
     }
     /**
-     * 색상 설정
      * @param {string} color
      */
     set_color(color) {
@@ -198,28 +222,38 @@ export class Canvas {
         wasm.canvas_set_color(this.__wbg_ptr, ptr0, len0);
     }
     /**
-     * 지우개 모드 설정
      * @param {boolean} is_eraser
      */
     set_eraser(is_eraser) {
         wasm.canvas_set_eraser(this.__wbg_ptr, is_eraser);
     }
     /**
-     * 선 굵기 설정
      * @param {number} width
      */
     set_line_width(width) {
         wasm.canvas_set_line_width(this.__wbg_ptr, width);
     }
     /**
-     * 선택 도구 모드 설정
      * @param {boolean} is_select
      */
     set_select_mode(is_select) {
         wasm.canvas_set_select_mode(this.__wbg_ptr, is_select);
     }
     /**
-     * 그리기 시작 - 새 스트로크 생성
+     * @param {string} mode
+     */
+    set_tool_mode(mode) {
+        const ptr0 = passStringToWasm0(mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.canvas_set_tool_mode(this.__wbg_ptr, ptr0, len0);
+    }
+    /**
+     * @param {number} new_zoom
+     */
+    set_zoom(new_zoom) {
+        wasm.canvas_set_zoom(this.__wbg_ptr, new_zoom);
+    }
+    /**
      * @param {number} x
      * @param {number} y
      */
@@ -227,7 +261,6 @@ export class Canvas {
         wasm.canvas_start_drawing(this.__wbg_ptr, x, y);
     }
     /**
-     * 이동 시작
      * @param {number} x
      * @param {number} y
      */
@@ -235,7 +268,19 @@ export class Canvas {
         wasm.canvas_start_move(this.__wbg_ptr, x, y);
     }
     /**
-     * 러버밴드 선택 시작
+     * @param {number} sx
+     * @param {number} sy
+     */
+    start_pan(sx, sy) {
+        wasm.canvas_start_pan(this.__wbg_ptr, sx, sy);
+    }
+    /**
+     * Rust 소유 rAF 렌더 루프 시작 (중복 호출 방지)
+     */
+    start_render_loop() {
+        wasm.canvas_start_render_loop(this.__wbg_ptr);
+    }
+    /**
      * @param {number} x
      * @param {number} y
      */
@@ -243,19 +288,22 @@ export class Canvas {
         wasm.canvas_start_rubber_band(this.__wbg_ptr, x, y);
     }
     /**
-     * 그리기 종료 - 스트로크 확정
+     * @param {number} x
+     * @param {number} y
      */
+    start_shape(x, y) {
+        wasm.canvas_start_shape(this.__wbg_ptr, x, y);
+    }
     stop_drawing() {
         wasm.canvas_stop_drawing(this.__wbg_ptr);
     }
-    /**
-     * 이동 종료
-     */
     stop_move() {
         wasm.canvas_stop_move(this.__wbg_ptr);
     }
+    stop_pan() {
+        wasm.canvas_stop_pan(this.__wbg_ptr);
+    }
     /**
-     * 좌표에서 스트로크 선택 시도 (역순 탐색으로 최상위 우선)
      * @param {number} x
      * @param {number} y
      * @param {boolean} shift
@@ -265,14 +313,10 @@ export class Canvas {
         const ret = wasm.canvas_try_select_at(this.__wbg_ptr, x, y, shift);
         return ret !== 0;
     }
-    /**
-     * 실행 취소
-     */
     undo() {
         wasm.canvas_undo(this.__wbg_ptr);
     }
     /**
-     * 커서 위치 업데이트
      * @param {number} x
      * @param {number} y
      */
@@ -280,12 +324,33 @@ export class Canvas {
         wasm.canvas_update_cursor(this.__wbg_ptr, x, y);
     }
     /**
-     * 러버밴드 드래그 중 — 영역 업데이트 및 렌더링
+     * @param {number} sx
+     * @param {number} sy
+     */
+    update_pan(sx, sy) {
+        wasm.canvas_update_pan(this.__wbg_ptr, sx, sy);
+    }
+    /**
      * @param {number} x
      * @param {number} y
      */
     update_rubber_band(x, y) {
         wasm.canvas_update_rubber_band(this.__wbg_ptr, x, y);
+    }
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
+    update_shape(x, y) {
+        wasm.canvas_update_shape(this.__wbg_ptr, x, y);
+    }
+    /**
+     * @param {number} screen_x
+     * @param {number} screen_y
+     * @param {number} delta
+     */
+    zoom_at(screen_x, screen_y, delta) {
+        wasm.canvas_zoom_at(this.__wbg_ptr, screen_x, screen_y, delta);
     }
 }
 if (Symbol.dispose) Canvas.prototype[Symbol.dispose] = Canvas.prototype.free;
@@ -297,12 +362,22 @@ export function main() {
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
+        __wbg___wbindgen_debug_string_0bc8482c6e3508ae: function(arg0, arg1) {
+            const ret = debugString(arg1);
+            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+        },
         __wbg___wbindgen_is_undefined_9e4d92534c42d778: function(arg0) {
             const ret = arg0 === undefined;
             return ret;
         },
         __wbg___wbindgen_throw_be289d5034ed271b: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
+        },
+        __wbg__wbg_cb_unref_d9b87ff7982e3b21: function(arg0) {
+            arg0._wbg_cb_unref();
         },
         __wbg_arc_60bf829e1bd2add5: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5) {
             arg0.arc(arg1, arg2, arg3, arg4, arg5);
@@ -387,6 +462,10 @@ function __wbg_get_imports() {
         __wbg_rect_967665357db991e9: function(arg0, arg1, arg2, arg3, arg4) {
             arg0.rect(arg1, arg2, arg3, arg4);
         },
+        __wbg_requestAnimationFrame_43682f8e1c5e5348: function() { return handleError(function (arg0, arg1) {
+            const ret = arg0.requestAnimationFrame(arg1);
+            return ret;
+        }, arguments); },
         __wbg_restore_0d233789d098ba64: function(arg0) {
             arg0.restore();
         },
@@ -401,6 +480,9 @@ function __wbg_get_imports() {
         }, arguments); },
         __wbg_set_fillStyle_783d3f7489475421: function(arg0, arg1, arg2) {
             arg0.fillStyle = getStringFromWasm0(arg1, arg2);
+        },
+        __wbg_set_globalAlpha_c32898c5532572f4: function(arg0, arg1) {
+            arg0.globalAlpha = arg1;
         },
         __wbg_set_lineCap_59a017de1ad2b0be: function(arg0, arg1, arg2) {
             arg0.lineCap = getStringFromWasm0(arg1, arg2);
@@ -433,16 +515,27 @@ function __wbg_get_imports() {
         __wbg_stroke_240ea7f2407d73c0: function(arg0) {
             arg0.stroke();
         },
+        __wbg_translate_3aa10730376a8c06: function() { return handleError(function (arg0, arg1, arg2) {
+            arg0.translate(arg1, arg2);
+        }, arguments); },
+        __wbg_warn_f7ae1b2e66ccb930: function(arg0) {
+            console.warn(arg0);
+        },
         __wbg_width_5f66bde2e810fbde: function(arg0) {
             const ret = arg0.width;
             return ret;
         },
-        __wbindgen_cast_0000000000000001: function(arg0) {
+        __wbindgen_cast_0000000000000001: function(arg0, arg1) {
+            // Cast intrinsic for `Closure(Closure { dtor_idx: 7, function: Function { arguments: [], shim_idx: 8, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm.wasm_bindgen__closure__destroy__he6ffe883f7d79201, wasm_bindgen__convert__closures_____invoke__h4563321ca26cc569);
+            return ret;
+        },
+        __wbindgen_cast_0000000000000002: function(arg0) {
             // Cast intrinsic for `F64 -> Externref`.
             const ret = arg0;
             return ret;
         },
-        __wbindgen_cast_0000000000000002: function(arg0, arg1) {
+        __wbindgen_cast_0000000000000003: function(arg0, arg1) {
             // Cast intrinsic for `Ref(String) -> Externref`.
             const ret = getStringFromWasm0(arg0, arg1);
             return ret;
@@ -463,6 +556,10 @@ function __wbg_get_imports() {
     };
 }
 
+function wasm_bindgen__convert__closures_____invoke__h4563321ca26cc569(arg0, arg1) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h4563321ca26cc569(arg0, arg1);
+}
+
 const CanvasFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_canvas_free(ptr >>> 0, 1));
@@ -471,6 +568,83 @@ function addToExternrefTable0(obj) {
     const idx = wasm.__externref_table_alloc();
     wasm.__wbindgen_externrefs.set(idx, obj);
     return idx;
+}
+
+const CLOSURE_DTORS = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(state => state.dtor(state.a, state.b));
+
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
+    }
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches && builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
+}
+
+let cachedDataViewMemory0 = null;
+function getDataViewMemory0() {
+    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
+        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
+    }
+    return cachedDataViewMemory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -497,6 +671,34 @@ function handleError(f, args) {
 
 function isLikeNone(x) {
     return x === undefined || x === null;
+}
+
+function makeMutClosure(arg0, arg1, dtor, f) {
+    const state = { a: arg0, b: arg1, cnt: 1, dtor };
+    const real = (...args) => {
+
+        // First up with a closure we increment the internal reference
+        // count. This ensures that the Rust closure environment won't
+        // be deallocated while we're invoking it.
+        state.cnt++;
+        const a = state.a;
+        state.a = 0;
+        try {
+            return f(a, state.b, ...args);
+        } finally {
+            state.a = a;
+            real._wbg_cb_unref();
+        }
+    };
+    real._wbg_cb_unref = () => {
+        if (--state.cnt === 0) {
+            state.dtor(state.a, state.b);
+            state.a = 0;
+            CLOSURE_DTORS.unregister(state);
+        }
+    };
+    CLOSURE_DTORS.register(real, state, state);
+    return real;
 }
 
 function passStringToWasm0(arg, malloc, realloc) {
@@ -575,6 +777,7 @@ let wasmModule, wasm;
 function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     wasmModule = module;
+    cachedDataViewMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();
     return wasm;

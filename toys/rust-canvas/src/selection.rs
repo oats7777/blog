@@ -1,50 +1,9 @@
-use crate::models::Point;
-use crate::models::Stroke;
-use crate::Canvas;
-
-// ===== 히트 테스트 =====
-
-/// 점 P에서 선분 AB까지의 최소 거리
-fn point_to_segment_distance(p: &Point, a: &Point, b: &Point) -> f64 {
-    let dx = b.x - a.x;
-    let dy = b.y - a.y;
-    let len_sq = dx * dx + dy * dy;
-
-    if len_sq == 0.0 {
-        let ex = p.x - a.x;
-        let ey = p.y - a.y;
-        return (ex * ex + ey * ey).sqrt();
-    }
-
-    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len_sq;
-    let t = t.clamp(0.0, 1.0);
-
-    let proj_x = a.x + t * dx;
-    let proj_y = a.y + t * dy;
-
-    let ex = p.x - proj_x;
-    let ey = p.y - proj_y;
-    (ex * ex + ey * ey).sqrt()
-}
-
-/// 특정 좌표가 스트로크 위에 있는지 검사
-pub(crate) fn hit_test_stroke(stroke: &Stroke, x: f64, y: f64) -> bool {
-    let threshold = (stroke.width / 2.0 + 4.0).max(8.0);
-    let p = Point { x, y };
-
-    for i in 0..stroke.points.len().saturating_sub(1) {
-        let dist = point_to_segment_distance(&p, &stroke.points[i], &stroke.points[i + 1]);
-        if dist <= threshold {
-            return true;
-        }
-    }
-    false
-}
+use crate::CanvasInner;
 
 // ===== 선택 하이라이트 렌더링 =====
 
-impl Canvas {
-    /// 선택된 스트로크의 바운딩 박스 하이라이트 그리기
+impl CanvasInner {
+    /// 선택된 요소의 바운딩 박스 하이라이트 그리기
     pub(crate) fn draw_selection_highlight(&self) {
         if self.selected_ids.is_empty() {
             return;
@@ -58,11 +17,11 @@ impl Canvas {
 
         let padding = 6.0;
 
-        for stroke in &self.strokes {
-            if !self.selected_ids.contains(&stroke.id) {
+        for elem in &self.elements {
+            if !self.selected_ids.contains(&elem.id) {
                 continue;
             }
-            if let Some(bb) = stroke.bounding_box() {
+            if let Some(bb) = elem.bounding_box() {
                 self.ctx.begin_path();
                 self.ctx.rect(
                     bb.min_x - padding,

@@ -25,6 +25,21 @@ import styles from '@/styles/toys/RustCanvas.module.css';
             <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L13.4 3c.8-.8 2-.8 2.8 0L21 7.8c.8.8.8 2 0 2.8L10 20" />
           </svg>
         </button>
+        <button id="lineBtn" class={styles.toolBtn} data-active="false" title="직선 (L)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="19" x2="19" y2="5" />
+          </svg>
+        </button>
+        <button id="rectBtn" class={styles.toolBtn} data-active="false" title="사각형 (R)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="1" />
+          </svg>
+        </button>
+        <button id="circleBtn" class={styles.toolBtn} data-active="false" title="원 (O)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -96,7 +111,42 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     </div>
 
     <div class={styles.toolGroup}>
-      <button id="clearBtn" class={styles.clearBtn}>전체 지우기</button>
+      <label>뷰</label>
+      <div class={styles.tools}>
+        <button id="zoomInBtn" class={styles.actionBtn} title="확대">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+        </button>
+        <button id="zoomOutBtn" class={styles.actionBtn} title="축소">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+        </button>
+        <button id="fitViewBtn" class={styles.actionBtn} title="맞춤">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+          </svg>
+        </button>
+        <button id="resetViewBtn" class={styles.actionBtn} title="1:1">
+          <span>1:1</span>
+        </button>
+        <span id="zoomLevel" class={styles.zoomLevel}>100%</span>
+      </div>
+    </div>
+
+    <div class={styles.toolGroup}>
+      <div class={styles.tools}>
+        <button id="exportSvgBtn" class={styles.actionBtn} title="SVG 다운로드">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>SVG</span>
+        </button>
+        <button id="clearBtn" class={styles.clearBtn}>전체 지우기</button>
+      </div>
     </div>
   </div>
 
@@ -116,15 +166,30 @@ import styles from '@/styles/toys/RustCanvas.module.css';
   const LOGICAL_WIDTH = 800;
   const LOGICAL_HEIGHT = 500;
 
-  let currentTool: 'pen' | 'eraser' | 'select' = 'pen';
+  type Tool = 'pen' | 'eraser' | 'select' | 'line' | 'rect' | 'circle';
+  let currentTool: Tool = 'pen';
+
+  function isShapeTool(tool: Tool): boolean {
+    return tool === 'line' || tool === 'rect' || tool === 'circle';
+  }
+
+  /** input/textarea/select 에서의 이벤트인지 확인 */
+  function isInputFocused(e: KeyboardEvent): boolean {
+    const tag = (e.target as HTMLElement)?.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  }
 
   // getBoundingClientRect 캐시 (드래그 중 레이아웃 재계산 방지)
   let cachedRect: DOMRect | null = null;
+
+  // Space 키 팬 모드
+  let isSpaceDown = false;
 
   function cacheRect(canvasEl: HTMLCanvasElement): void {
     cachedRect = canvasEl.getBoundingClientRect();
   }
 
+  /** 스크린 스페이스 논리 좌표 (0~800, 0~500) */
   function getPosition(e: MouseEvent | TouchEvent, canvasEl: HTMLCanvasElement): Position {
     const rect = cachedRect || canvasEl.getBoundingClientRect();
     const scaleX = LOGICAL_WIDTH / rect.width;
@@ -144,6 +209,15 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     };
   }
 
+  /** 월드 스페이스 좌표 (스크린 좌표를 줌/팬 역변환) */
+  function getWorldPosition(e: MouseEvent | TouchEvent, canvasEl: HTMLCanvasElement, canvas: Canvas): Position {
+    const screen = getPosition(e, canvasEl);
+    return {
+      x: canvas.screen_to_world_x(screen.x),
+      y: canvas.screen_to_world_y(screen.y),
+    };
+  }
+
   function setActiveState(element: Element, isActive: boolean): void {
     element.setAttribute('data-active', String(isActive));
   }
@@ -159,65 +233,107 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     return dpr;
   }
 
+  function updateZoomDisplay(canvas: Canvas): void {
+    const el = document.getElementById('zoomLevel');
+    if (el) {
+      el.textContent = `${Math.round(canvas.get_zoom() * 100)}%`;
+    }
+  }
+
   function setupDrawingEvents(canvasEl: HTMLCanvasElement, canvas: Canvas): void {
     // Mouse events
     canvasEl.addEventListener('mousedown', (e) => {
       cacheRect(canvasEl);
-      const pos = getPosition(e, canvasEl);
+
+      // Space 팬 모드 또는 중간 버튼
+      if (isSpaceDown || e.button === 1) {
+        e.preventDefault();
+        const pos = getPosition(e, canvasEl);
+        canvas.start_pan(pos.x, pos.y);
+        canvasEl.style.cursor = 'grabbing';
+        return;
+      }
+
+      const world = getWorldPosition(e, canvasEl, canvas);
+      const screen = getPosition(e, canvasEl);
 
       if (currentTool === 'select') {
-        // 이미 선택된 스트로크 위 클릭 → 이동
-        if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
-          canvas.start_move(pos.x, pos.y);
+        if (canvas.has_selection() && canvas.is_over_selected(world.x, world.y)) {
+          canvas.start_move(world.x, world.y);
         } else {
-          // 스트로크 위 클릭 → 개별 선택
-          const hit = canvas.try_select_at(pos.x, pos.y, e.shiftKey);
-          if (hit && canvas.is_over_selected(pos.x, pos.y)) {
-            canvas.start_move(pos.x, pos.y);
+          const hit = canvas.try_select_at(world.x, world.y, e.shiftKey);
+          if (hit && canvas.is_over_selected(world.x, world.y)) {
+            canvas.start_move(world.x, world.y);
           } else if (!hit) {
-            // 빈 영역 클릭 → 러버밴드 시작
-            canvas.start_rubber_band(pos.x, pos.y);
+            // 러버밴드는 스크린 좌표
+            canvas.start_rubber_band(screen.x, screen.y);
           }
-          canvas.render();
         }
+      } else if (isShapeTool(currentTool)) {
+        canvas.start_shape(world.x, world.y);
       } else {
-        canvas.start_drawing(pos.x, pos.y);
+        canvas.start_drawing(world.x, world.y);
       }
     });
 
     canvasEl.addEventListener('mousemove', (e) => {
-      const pos = getPosition(e, canvasEl);
+      // 팬 모드
+      if (canvas.get_is_panning()) {
+        const pos = getPosition(e, canvasEl);
+        canvas.update_pan(pos.x, pos.y);
+        updateZoomDisplay(canvas);
+        return;
+      }
+
+      const screen = getPosition(e, canvasEl);
+      const world = getWorldPosition(e, canvasEl, canvas);
+
+      if (isSpaceDown) {
+        canvasEl.style.cursor = 'grab';
+        return;
+      }
 
       if (currentTool === 'select') {
         if (canvas.get_is_rubber_band()) {
-          canvas.update_rubber_band(pos.x, pos.y);
+          canvas.update_rubber_band(screen.x, screen.y);
           canvasEl.style.cursor = 'crosshair';
         } else if (canvas.get_is_moving()) {
-          canvas.move_selected(pos.x, pos.y);
+          canvas.move_selected(world.x, world.y);
         } else {
-          // 이동/러버밴드 아닌 hover — 커서만 변경, render 스킵
-          if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
+          if (canvas.has_selection() && canvas.is_over_selected(world.x, world.y)) {
             canvasEl.style.cursor = 'move';
           } else {
             canvasEl.style.cursor = 'default';
           }
         }
+      } else if (isShapeTool(currentTool)) {
+        if (canvas.get_is_drawing_shape()) {
+          canvas.update_shape(world.x, world.y);
+        }
       } else {
-        canvas.update_cursor(pos.x, pos.y);
+        // 커서 프리뷰는 스크린 좌표
+        canvas.update_cursor(screen.x, screen.y);
         if (canvas.get_is_drawing()) {
-          canvas.draw(pos.x, pos.y);
-        } else {
-          canvas.render();
+          canvas.draw(world.x, world.y);
         }
       }
     });
 
     canvasEl.addEventListener('mouseup', (e) => {
+      if (canvas.get_is_panning()) {
+        canvas.stop_pan();
+        canvasEl.style.cursor = isSpaceDown ? 'grab' : (currentTool === 'select' ? 'default' : 'crosshair');
+        cachedRect = null;
+        return;
+      }
+
       if (currentTool === 'select') {
         if (canvas.get_is_rubber_band()) {
           canvas.finish_rubber_band(e.shiftKey);
         }
         canvas.stop_move();
+      } else if (isShapeTool(currentTool)) {
+        canvas.finish_shape();
       } else {
         canvas.stop_drawing();
       }
@@ -225,18 +341,32 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     });
 
     canvasEl.addEventListener('mouseleave', (e) => {
+      if (canvas.get_is_panning()) {
+        canvas.stop_pan();
+      }
       if (currentTool === 'select') {
         if (canvas.get_is_rubber_band()) {
           canvas.finish_rubber_band(e.shiftKey);
         }
         canvas.stop_move();
+      } else if (isShapeTool(currentTool)) {
+        canvas.finish_shape();
       } else {
         canvas.stop_drawing();
       }
       canvas.hide_cursor();
-      canvas.render();
       cachedRect = null;
     });
+
+    // Wheel zoom (Ctrl/Meta + 휠만 줌, 그 외 스크롤 허용)
+    canvasEl.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const pos = getPosition(e, canvasEl);
+        canvas.zoom_at(pos.x, pos.y, e.deltaY);
+        updateZoomDisplay(canvas);
+      }
+    }, { passive: false });
 
     // Touch events
     canvasEl.addEventListener(
@@ -244,22 +374,24 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       (e) => {
         e.preventDefault();
         cacheRect(canvasEl);
-        const pos = getPosition(e, canvasEl);
+        const world = getWorldPosition(e, canvasEl, canvas);
+        const screen = getPosition(e, canvasEl);
 
         if (currentTool === 'select') {
-          if (canvas.has_selection() && canvas.is_over_selected(pos.x, pos.y)) {
-            canvas.start_move(pos.x, pos.y);
+          if (canvas.has_selection() && canvas.is_over_selected(world.x, world.y)) {
+            canvas.start_move(world.x, world.y);
           } else {
-            const hit = canvas.try_select_at(pos.x, pos.y, false);
-            if (hit && canvas.is_over_selected(pos.x, pos.y)) {
-              canvas.start_move(pos.x, pos.y);
+            const hit = canvas.try_select_at(world.x, world.y, false);
+            if (hit && canvas.is_over_selected(world.x, world.y)) {
+              canvas.start_move(world.x, world.y);
             } else if (!hit) {
-              canvas.start_rubber_band(pos.x, pos.y);
+              canvas.start_rubber_band(screen.x, screen.y);
             }
-            canvas.render();
           }
+        } else if (isShapeTool(currentTool)) {
+          canvas.start_shape(world.x, world.y);
         } else {
-          canvas.start_drawing(pos.x, pos.y);
+          canvas.start_drawing(world.x, world.y);
         }
       },
       { passive: false }
@@ -269,16 +401,21 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       'touchmove',
       (e) => {
         e.preventDefault();
-        const pos = getPosition(e, canvasEl);
+        const world = getWorldPosition(e, canvasEl, canvas);
+        const screen = getPosition(e, canvasEl);
 
         if (currentTool === 'select') {
           if (canvas.get_is_rubber_band()) {
-            canvas.update_rubber_band(pos.x, pos.y);
+            canvas.update_rubber_band(screen.x, screen.y);
           } else if (canvas.get_is_moving()) {
-            canvas.move_selected(pos.x, pos.y);
+            canvas.move_selected(world.x, world.y);
+          }
+        } else if (isShapeTool(currentTool)) {
+          if (canvas.get_is_drawing_shape()) {
+            canvas.update_shape(world.x, world.y);
           }
         } else {
-          canvas.draw(pos.x, pos.y);
+          canvas.draw(world.x, world.y);
         }
       },
       { passive: false }
@@ -290,6 +427,8 @@ import styles from '@/styles/toys/RustCanvas.module.css';
           canvas.finish_rubber_band(false);
         }
         canvas.stop_move();
+      } else if (isShapeTool(currentTool)) {
+        canvas.finish_shape();
       } else {
         canvas.stop_drawing();
       }
@@ -299,33 +438,39 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
   function setupToolButtons(
     canvas: Canvas,
-    penBtn: Element,
-    eraserBtn: Element,
-    selectBtn: Element,
     canvasEl: HTMLCanvasElement
   ): void {
-    const allToolBtns = [selectBtn, penBtn, eraserBtn];
+    const selectBtn = document.getElementById('selectBtn')!;
+    const penBtn = document.getElementById('penBtn')!;
+    const eraserBtn = document.getElementById('eraserBtn')!;
+    const lineBtn = document.getElementById('lineBtn')!;
+    const rectBtn = document.getElementById('rectBtn')!;
+    const circleBtn = document.getElementById('circleBtn')!;
 
-    function activateTool(activeBtn: Element, tool: 'pen' | 'eraser' | 'select') {
+    const allToolBtns = [selectBtn, penBtn, eraserBtn, lineBtn, rectBtn, circleBtn];
+
+    function activateTool(activeBtn: Element, tool: Tool) {
       allToolBtns.forEach((btn) => setActiveState(btn, btn === activeBtn));
       currentTool = tool;
-
-      canvas.set_eraser(tool === 'eraser');
-      canvas.set_select_mode(tool === 'select');
+      canvas.set_tool_mode(tool);
 
       if (tool === 'select') {
         canvasEl.style.cursor = 'default';
+      } else if (isShapeTool(tool)) {
+        canvasEl.style.cursor = 'crosshair';
+        canvas.deselect_all();
       } else {
         canvasEl.style.cursor = 'none';
         canvas.deselect_all();
       }
-
-      canvas.render();
     }
 
     selectBtn.addEventListener('click', () => activateTool(selectBtn, 'select'));
     penBtn.addEventListener('click', () => activateTool(penBtn, 'pen'));
     eraserBtn.addEventListener('click', () => activateTool(eraserBtn, 'eraser'));
+    lineBtn.addEventListener('click', () => activateTool(lineBtn, 'line'));
+    rectBtn.addEventListener('click', () => activateTool(rectBtn, 'rect'));
+    circleBtn.addEventListener('click', () => activateTool(circleBtn, 'circle'));
   }
 
   function setupActionButtons(canvas: Canvas): void {
@@ -357,7 +502,33 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
     selectAllBtn?.addEventListener('click', () => {
       canvas.select_all();
-      canvas.render();
+    });
+  }
+
+  function setupZoomButtons(canvas: Canvas, canvasEl: HTMLCanvasElement): void {
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const fitViewBtn = document.getElementById('fitViewBtn');
+    const resetViewBtn = document.getElementById('resetViewBtn');
+
+    zoomInBtn?.addEventListener('click', () => {
+      canvas.set_zoom(canvas.get_zoom() * 1.25);
+      updateZoomDisplay(canvas);
+    });
+
+    zoomOutBtn?.addEventListener('click', () => {
+      canvas.set_zoom(canvas.get_zoom() / 1.25);
+      updateZoomDisplay(canvas);
+    });
+
+    fitViewBtn?.addEventListener('click', () => {
+      canvas.fit_to_view();
+      updateZoomDisplay(canvas);
+    });
+
+    resetViewBtn?.addEventListener('click', () => {
+      canvas.reset_view();
+      updateZoomDisplay(canvas);
     });
   }
 
@@ -365,22 +536,28 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     canvas: Canvas,
     colorPicker: HTMLInputElement,
     colorBtns: NodeListOf<Element>,
-    penBtn: Element,
-    eraserBtn: Element,
-    selectBtn: Element,
     canvasEl: HTMLCanvasElement
   ): void {
-    const allToolBtns = [selectBtn, penBtn, eraserBtn];
+    const penBtn = document.getElementById('penBtn')!;
+    const allToolBtnIds = ['selectBtn', 'penBtn', 'eraserBtn', 'lineBtn', 'rectBtn', 'circleBtn'];
+
+    function switchToPen() {
+      canvas.set_color(colorPicker.value);
+      canvas.set_tool_mode('pen');
+      currentTool = 'pen';
+      allToolBtnIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) setActiveState(el, el === penBtn);
+      });
+      canvasEl.style.cursor = 'none';
+      canvas.deselect_all();
+    }
 
     colorPicker.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
       canvas.set_color(target.value);
-      currentTool = 'pen';
-      allToolBtns.forEach((btn) => setActiveState(btn, btn === penBtn));
-      canvasEl.style.cursor = 'none';
-      canvas.deselect_all();
+      switchToPen();
       colorBtns.forEach((btn) => setActiveState(btn, false));
-      canvas.render();
     });
 
     colorBtns.forEach((btn) => {
@@ -390,13 +567,9 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
         canvas.set_color(color);
         colorPicker.value = color;
-        currentTool = 'pen';
-        allToolBtns.forEach((b) => setActiveState(b, b === penBtn));
-        canvasEl.style.cursor = 'none';
-        canvas.deselect_all();
+        switchToPen();
         colorBtns.forEach((b) => setActiveState(b, false));
         setActiveState(btn, true);
-        canvas.render();
       });
     });
   }
@@ -407,12 +580,22 @@ import styles from '@/styles/toys/RustCanvas.module.css';
       const size = parseInt(target.value, 10);
       canvas.set_line_width(size);
       sizeValue.textContent = String(size);
-      canvas.render();
     });
   }
 
-  function setupKeyboardShortcuts(canvas: Canvas): void {
+  function setupKeyboardShortcuts(canvas: Canvas, canvasEl: HTMLCanvasElement): void {
     document.addEventListener('keydown', (e) => {
+      // input/textarea/select 에서는 단축키 무시
+      if (isInputFocused(e)) return;
+
+      // Space 키 팬 모드
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        isSpaceDown = true;
+        canvasEl.style.cursor = 'grab';
+        return;
+      }
+
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (canvas.has_selection()) {
           e.preventDefault();
@@ -447,14 +630,39 @@ import styles from '@/styles/toys/RustCanvas.module.css';
           if (currentTool === 'select') {
             e.preventDefault();
             canvas.select_all();
-            canvas.render();
           }
         }
       }
 
       if (e.key === 'Escape') {
         canvas.deselect_all();
-        canvas.render();
+      }
+
+      // 도구 단축키 (Ctrl/Meta 없을 때만)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        const toolShortcuts: Record<string, string> = {
+          v: 'selectBtn', p: 'penBtn', e: 'eraserBtn',
+          l: 'lineBtn', r: 'rectBtn', o: 'circleBtn',
+        };
+        const btnId = toolShortcuts[e.key.toLowerCase()];
+        if (btnId) {
+          const btn = document.getElementById(btnId);
+          if (btn) btn.click();
+        }
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        isSpaceDown = false;
+        if (canvas.get_is_panning()) {
+          canvas.stop_pan();
+        }
+        if (currentTool === 'select') {
+          canvasEl.style.cursor = 'default';
+        } else {
+          canvasEl.style.cursor = 'none';
+        }
       }
     });
   }
@@ -470,18 +678,16 @@ import styles from '@/styles/toys/RustCanvas.module.css';
 
     const dpr = setupCanvasSize(canvasEl);
     const canvas = new Canvas('rust-canvas', dpr);
+    canvas.start_render_loop();
     canvas.clear();
 
-    const selectBtn = document.getElementById('selectBtn');
-    const penBtn = document.getElementById('penBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
     const colorPicker = document.getElementById('colorPicker') as HTMLInputElement | null;
     const colorBtns = document.querySelectorAll('[data-color]');
     const sizeSlider = document.getElementById('sizeSlider') as HTMLInputElement | null;
     const sizeValue = document.getElementById('sizeValue');
     const clearBtn = document.getElementById('clearBtn');
 
-    if (!selectBtn || !penBtn || !eraserBtn || !colorPicker || !sizeSlider || !sizeValue || !clearBtn) {
+    if (!colorPicker || !sizeSlider || !sizeValue || !clearBtn) {
       console.error('Required elements not found');
       return;
     }
@@ -489,13 +695,28 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     canvasEl.style.cursor = 'none';
 
     setupDrawingEvents(canvasEl, canvas);
-    setupToolButtons(canvas, penBtn, eraserBtn, selectBtn, canvasEl);
+    setupToolButtons(canvas, canvasEl);
     setupActionButtons(canvas);
-    setupColorControls(canvas, colorPicker, colorBtns, penBtn, eraserBtn, selectBtn, canvasEl);
+    setupZoomButtons(canvas, canvasEl);
+    setupColorControls(canvas, colorPicker, colorBtns, canvasEl);
     setupSizeSlider(canvas, sizeSlider, sizeValue);
-    setupKeyboardShortcuts(canvas);
+    setupKeyboardShortcuts(canvas, canvasEl);
 
     clearBtn.addEventListener('click', () => canvas.clear());
+
+    const exportSvgBtn = document.getElementById('exportSvgBtn');
+    exportSvgBtn?.addEventListener('click', () => {
+      const svgStr = canvas.export_svg();
+      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'canvas.svg';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    updateZoomDisplay(canvas);
   }
 
   initRustCanvas();
