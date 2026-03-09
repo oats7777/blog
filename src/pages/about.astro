@@ -3,250 +3,170 @@ import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import styles from '@/styles/About.module.css';
+
+const stats = [
+  { number: '8+', label: 'Years Exp' },
+  { number: '7+', label: 'Companies' },
+  { number: '10+', label: 'Tech Stack' },
+];
+
+const skills = [
+  {
+    category: 'Frontend Core',
+    items: ['TypeScript', 'React / Next.js', 'Vue3 / Nuxt', 'Zustand / TanStack Query'],
+  },
+  {
+    category: 'Mobile & Backend',
+    items: ['Capacitor', 'Supabase', 'Node.js'],
+  },
+  {
+    category: 'DevOps & Testing',
+    items: ['Vite / pnpm', 'Vitest / Storybook', 'CI/CD'],
+  },
+  {
+    category: 'Specialty',
+    items: ['Design System', 'Performance', 'WebGL / AWS IVS'],
+  },
+];
+
+const experiences = [
+  {
+    period: '2026.01 - Present',
+    title: 'CTO',
+    company: '알고크라시',
+    description: '서비스 전반의 기술 전략 수립, 시스템 아키텍처 설계, 팀 빌딩 및 기술 리더십',
+    tags: ['Strategy', 'Architecture', 'Leadership'],
+  },
+  {
+    period: '2025.09 - 2025.11',
+    title: 'Frontend Developer',
+    company: '벙커키즈 (Whif)',
+    description: 'PWA → Capacitor 하이브리드 앱 전환, OTA 업데이트, 인앱결제 시스템 구축',
+    tags: ['Capacitor', 'Supabase', 'RevenueCat'],
+  },
+  {
+    period: '2025.03 - 2025.08',
+    title: 'Frontend Developer',
+    company: '혜움',
+    description: 'Monocle 디자인 시스템 개발, 권한 관리 시스템 구축, 성능 최적화',
+    tags: ['Vue3', 'Design System', 'Storybook'],
+  },
+  {
+    period: '2024.04 - 2025.02',
+    title: 'Frontend Developer',
+    company: '플루언트',
+    description: 'WebGL/AI 기반 인터랙션 플랫폼 Xavis 개발, 다국어 지원',
+    tags: ['Next.js', 'WebGL', 'TanStack Query'],
+  },
+  {
+    period: '2022.09 - 2024.03',
+    title: 'Frontend Developer',
+    company: '스푼라디오',
+    description: 'Vue2 → Vue3 마이그레이션, AWS IVS 라이브 코어 엔진 교체, Web팀 리드',
+    tags: ['Vue3', 'AWS IVS', 'Team Lead'],
+  },
+  {
+    period: '2022.05 - 2022.08',
+    title: 'Frontend Developer',
+    company: '플라잉캣',
+    description: '10분 특공대 앱 기능 개선, Code Push 시스템 구현',
+    tags: ['React Native', 'Code Push'],
+  },
+  {
+    period: '2018.12 - 2022.04',
+    title: 'Full Stack Developer',
+    company: '로앤컴퍼니',
+    description: '빅케이스 판례검색 서비스 신규 개발, 로톡 비즈니스 2.0 풀스택 개발',
+    tags: ['Next.js', 'Node.js', 'React'],
+  },
+];
 ---
 
 <Layout
-  title="소개 - 한민규의 기술 블로그"
-  description="8년차 개발자 한민규의 소개와 경력, 기술 스택을 확인해보세요."
+  title="About - Minkyu Han"
+  description="8년차 프론트엔드 개발자 한민규의 소개와 경력, 기술 스택을 확인해보세요."
 >
   <Header />
 
-  <main>
-    <!-- Hero Section -->
-    <section class={styles.hero}>
-      <div class={`container ${styles.heroContainer}`}>
-        <div class={styles.heroContent}>
-          <h1 class={styles.heroTitle}>
-            안녕하세요! 👋<br />
-            저는 <span class={styles.highlight}>한민규</span>입니다
-          </h1>
-          <p class={styles.heroDescription}>
-            <strong>Value = f(Empathy × Code × Iteration)</strong><br />
-            사용자를 이해하고, 코드를 다듬고, 반복해 가치를 만드는 것이 저의 개발 철학입니다.
-          </p>
-          <div class={styles.heroContact}>
-            <p>📧 hanmin84200@gmail.com</p>
+  <main class={styles.main}>
+    <div class="container">
+      <!-- Hero -->
+      <section class={styles.hero}>
+        <p class="section-label reveal">About Me</p>
+        <h1 class={`${styles.name} reveal`} data-delay="0.1">한민규</h1>
+        <p class={`${styles.role} reveal`} data-delay="0.2">Frontend Developer & Creative Engineer</p>
+        <p class={`${styles.bio} reveal`} data-delay="0.3">
+          사용자를 이해하고, 코드를 다듬고, 반복해 가치를 만드는 것이 저의 개발 철학입니다.
+          React, Vue.js를 중심으로 디자인 시스템 구축, 성능 최적화, 팀 리드 경험을 통해
+          지속 가능하고 확장 가능한 서비스를 만드는 데 집중하고 있습니다.
+        </p>
+        <div class={`${styles.socialLinks} reveal`} data-delay="0.4">
+          <a href="https://github.com/oats7777" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/fe-minkyu" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:hanmin84200@gmail.com">Email</a>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class={styles.stats}>
+        {stats.map((stat, i) => (
+          <div class={`${styles.statItem} reveal`} data-delay={String(i * 0.1)}>
+            <span class={styles.statNumber}>{stat.number}</span>
+            <span class={styles.statLabel}>{stat.label}</span>
           </div>
-        </div>
-        <!-- 
-        <div class={styles.profileContainer}>
-          <img src="/profile.jpg" alt="한민규 프로필 사진" class={styles.profileImage} />
-        </div> -->
-      </div>
-    </section>
+        ))}
+      </section>
 
-    <!-- Content Section -->
-    <section class={styles.content}>
-      <div class="container">
-        <!-- About Me -->
-        <div class={styles.section}>
-          <h2 class={styles.sectionTitle}>About Me</h2>
-          <p class={styles.bio}>
-            안녕하세요! 8년차 개발자 한민규입니다. React, Vue.js를 중심으로 다양한 웹 애플리케이션을
-            개발해왔으며, 사용자 경험과 개발자 경험 모두를 중시하는 개발을 지향합니다.
-          </p>
-          <p class={styles.bio}>
-            특히 디자인 시스템 구축, 성능 최적화, 팀 리드 경험을 통해 단순히 기능을 구현하는 것을 넘어서 지속 가능하고
-            확장 가능한 서비스를 만드는 데 집중하고 있습니다.
-          </p>
-          <p class={styles.bio}>
-            현재는 알고크라시에서 CTO로 재직하며, 서비스 전반의 기술 전략 수립과 시스템 아키텍처 설계를 담당하고 있습니다.
-            이전에는 AI 캐릭터 채팅 플랫폼 Whif에서 하이브리드 앱 출시를 주도하고, 혜움에서 디자인 시스템과 권한 관리 시스템을 구축했습니다.
-          </p>
+      <!-- Experience -->
+      <section class={styles.experience}>
+        <p class="section-label reveal">Experience</p>
+        <div class={styles.timeline}>
+          {experiences.map((exp, i) => (
+            <div class={`${styles.timelineItem} reveal`} data-delay={String(i * 0.08)}>
+              <div class={styles.timelineDot}></div>
+              <div class={styles.timelineContent}>
+                <span class={styles.timePeriod}>{exp.period}</span>
+                <h3 class={styles.timelineTitle}>{exp.title}</h3>
+                <span class={styles.timelineCompany}>{exp.company}</span>
+                <p class={styles.timelineDesc}>{exp.description}</p>
+                <div class={styles.timelineTags}>
+                  {exp.tags.map((tag: string) => (
+                    <span class={styles.timelineTag}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        <!-- Skills -->
-        <div class={styles.section}>
-          <h2 class={styles.sectionTitle}>기술 스택</h2>
-          <div class={styles.skillsGrid}>
-            <div class={styles.skillCategory}>
-              <h3 class={styles.skillTitle}>
-                <span class={styles.skillIcon}>⚛️</span>
-                Frontend Core
-              </h3>
+      <!-- Skills -->
+      <section class={styles.skills}>
+        <p class="section-label reveal">Skills & Tools</p>
+        <div class={styles.skillsGrid}>
+          {skills.map((group, i) => (
+            <div class={`${styles.skillCard} reveal`} data-delay={String(i * 0.1)}>
+              <h3 class={styles.skillCategory}>{group.category}</h3>
               <ul class={styles.skillList}>
-                <li class={styles.skillItem}>TypeScript</li>
-                <li class={styles.skillItem}>React / Next.js</li>
-                <li class={styles.skillItem}>Vue3 / Nuxt</li>
-                <li class={styles.skillItem}>Zustand / TanStack Query</li>
+                {group.items.map((item: string) => (
+                  <li class={styles.skillItem}>{item}</li>
+                ))}
               </ul>
             </div>
-
-            <div class={styles.skillCategory}>
-              <h3 class={styles.skillTitle}>
-                <span class={styles.skillIcon}>📱</span>
-                Mobile & Backend
-              </h3>
-              <ul class={styles.skillList}>
-                <li class={styles.skillItem}>Capacitor</li>
-                <li class={styles.skillItem}>Supabase</li>
-                <li class={styles.skillItem}>Node.js</li>
-              </ul>
-            </div>
-
-            <div class={styles.skillCategory}>
-              <h3 class={styles.skillTitle}>
-                <span class={styles.skillIcon}>🛠️</span>
-                DevOps & Testing
-              </h3>
-              <ul class={styles.skillList}>
-                <li class={styles.skillItem}>Vite / pnpm</li>
-                <li class={styles.skillItem}>Vitest / Storybook</li>
-                <li class={styles.skillItem}>CI/CD</li>
-              </ul>
-            </div>
-
-            <div class={styles.skillCategory}>
-              <h3 class={styles.skillTitle}>
-                <span class={styles.skillIcon}>🎯</span>
-                Specialty
-              </h3>
-              <ul class={styles.skillList}>
-                <li class={styles.skillItem}>디자인 시스템</li>
-                <li class={styles.skillItem}>성능 최적화</li>
-                <li class={styles.skillItem}>WebGL / AWS IVS</li>
-              </ul>
-            </div>
-          </div>
+          ))}
         </div>
+      </section>
 
-        <!-- Experience -->
-        <div class={styles.section}>
-          <h2 class={styles.sectionTitle}>Experience</h2>
-          <div class={styles.timelineContainer}>
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2026.01 - 재직 중</div>
-              <h3 class={styles.timelineTitle}>CTO</h3>
-              <div class={styles.timelineCompany}>알고크라시</div>
-              <p class={styles.timelineDescription}>
-                • <strong>기술 전략 수립</strong>: 서비스 전반의 기술 방향성 설정 및 의사결정<br />
-                • <strong>시스템 아키텍처 설계</strong>: 프론트엔드, 백엔드, 인프라 전반의 아키텍처 설계<br />
-                • <strong>팀 빌딩 및 기술 리더십</strong>: 개발 문화 구축 및 팀 성장 지원
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2025.09 - 2025.11</div>
-              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
-              <div class={styles.timelineCompany}>벙커키즈 (Whif)</div>
-              <p class={styles.timelineDescription}>
-                • <strong>PWA → Capacitor 하이브리드 앱 전환</strong>: 초기 세팅부터 스토어 심사까지 약 2주 내 iOS·Android 동시 출시<br />
-                • <strong>OTA(Over-The-Air) 업데이트 시스템 구축</strong>: 앱 재배포 없이 웹 변경사항 즉시 반영 가능하게 개선<br />
-                • <strong>RevenueCat 기반 인앱결제</strong>: App Store·Play Store 상품 통합 관리, 화폐 단위별 상품 구조 설계<br />
-                • <strong>Supabase Auth 및 딥링크 구현</strong>: Google/Kakao 인증, Universal Link/App Link로 웹↔앱 인증 루프 완성<br />
-                • <strong>품질 개선</strong>: E2E/유닛 테스트 도입으로 채팅 메시지 유실 오류율 100% 감소
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2025.03 - 2025.08</div>
-              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
-              <div class={styles.timelineCompany}>혜움</div>
-              <p class={styles.timelineDescription}>
-                • <strong>Monocle 디자인 시스템 개발</strong>: Foundation 레이어 및 low-level 컴포넌트 구축, Storybook
-                기반 문서화로 협업 효율 개선<br />
-                • <strong>권한 관리 시스템 구축</strong>: 관리자 및 사용자 권한 설정 기능 신규 개발 (React Router v7
-                POC, Vue3)<br />
-                • <strong>서비스 주체 변경 및 약관 관리 시스템</strong>: 도메인별 자동화 설계로 FE 수정 없이 서비스 확장
-                가능<br />
-                • <strong>성능·시스템 개선</strong>: 낙관적 업데이트 컴포지션 도입, npm → pnpm, jest → vitest
-                마이그레이션
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2024.04 - 2025.02</div>
-              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
-              <div class={styles.timelineCompany}>플루언트</div>
-              <p class={styles.timelineDescription}>
-                • <strong>WebGL/AI 기반 인터랙션 플랫폼 Xavis</strong>: 글로벌 유저 대상 다국어 지원 및 실시간 아바타
-                채팅 UI 구현 (Next.js, TanStack Query, Zustand, WebGL)<br />
-                • <strong>AI 기반 MotiPet 기획·PO</strong>: 성장·상호작용·상태변화 시스템 기획 완료, 외주 리소스 관리
-                효율화<br />
-                • <strong>회사 홈페이지 개발</strong>: SEO 최적화, 비즈니스 문의 페이지 추가, WebGL 아바타 채팅 구현
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2022.09 - 2024.03</div>
-              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
-              <div class={styles.timelineCompany}>스푼라디오</div>
-              <p class={styles.timelineDescription}>
-                • <strong>Vue2 → Vue3 마이그레이션</strong>: Vue CLI → Vite, npm → pnpm 전환으로 빌드 속도 3배 향상<br
-                />
-                • <strong>AWS IVS 기반 라이브 코어 엔진 교체</strong>: WebRTC → AWS IVS Stage 전환으로 고음질 방송 및
-                레이턴시 감소<br />
-                • <strong>Web팀 리드 대행 및 채용</strong>: 주니어 개발자 2명 채용 및 온보딩, 프로젝트 일정·우선순위
-                조율
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2022.05 - 2022.08</div>
-              <h3 class={styles.timelineTitle}>프론트엔드 개발자</h3>
-              <div class={styles.timelineCompany}>플라잉캣</div>
-              <p class={styles.timelineDescription}>
-                • <strong>10분 특공대 앱 기능 개선</strong>: 비회원 둘러보기, 리뷰 작성, 배포환경 분리, Code Push 기능
-                구현
-              </p>
-            </div>
-
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2018.12 - 2022.04</div>
-              <h3 class={styles.timelineTitle}>풀스택 개발자</h3>
-              <div class={styles.timelineCompany}>로앤컴퍼니</div>
-              <p class={styles.timelineDescription}>
-                • <strong>판례검색 서비스 '빅케이스' 신규 개발</strong>: Next.js, Storybook, Snapshot Test 적용<br />
-                • <strong>로톡 비즈니스 2.0 풀스택 개발</strong>: React, Mobx, TypeScript, Node.js 활용<br />
-                • <strong>레거시 시스템 개선</strong>: 웹팩 1 → 5 마이그레이션, Coffeescript 제거, 성과 배지 시스템 추가
-              </p>
-            </div>
-          </div>
+      <!-- Education -->
+      <section class={`${styles.education} reveal`}>
+        <p class="section-label">Education</p>
+        <div class={styles.eduItem}>
+          <span class={styles.eduPeriod}>2016.03 - 2019.01</span>
+          <h3 class={styles.eduTitle}>컴퓨터네트워크과</h3>
+          <span class={styles.eduSchool}>서울전자고등학교</span>
         </div>
-
-        <!-- Education -->
-        <div class={styles.section}>
-          <h2 class={styles.sectionTitle}>학력</h2>
-          <div class={styles.timelineContainer}>
-            <div class={styles.timelineItem}>
-              <div class={styles.timelineDate}>2016.03 - 2019.01</div>
-              <h3 class={styles.timelineTitle}>컴퓨터네트워크과</h3>
-              <div class={styles.timelineCompany}>서울전자고등학교</div>
-              <p class={styles.timelineDescription}>
-                특성화 고등학교에서 컴퓨터 네트워크 및 프로그래밍 기초를 학습했습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contact -->
-        <div class={styles.section}>
-          <div class={styles.contact}>
-            <h2 class={styles.contactTitle}>연락하기</h2>
-            <p class={styles.contactDescription}>궁금한 점이 있거나 함께 협업하고 싶으시다면 언제든 연락주세요!</p>
-            <div class={styles.contactLinks}>
-              <a href="mailto:hanmin84200@gmail.com" class={styles.contactLink}> 📧 이메일 보내기 </a>
-              <a
-                href="https://github.com/oats7777"
-                class={styles.contactLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                🐙 GitHub
-              </a>
-              <a
-                href="https://www.linkedin.com/in/fe-minkyu"
-                class={`${styles.contactLink} ${styles.secondary}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                💼 LinkedIn
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <Footer />
