@@ -9,16 +9,31 @@ type PostEntry = CollectionEntry<'posts'>;
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map((post: PostEntry) => ({
+  const sorted = posts
+    .filter((p: PostEntry) => !p.data.draft)
+    .sort((a: PostEntry, b: PostEntry) => {
+      const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return (a.data.order ?? 0) - (b.data.order ?? 0);
+    });
+
+  return sorted.map((post: PostEntry, i: number) => ({
     params: { slug: post.slug },
-    props: { post },
+    props: {
+      post,
+      prev: sorted[i + 1] || null,
+      next: sorted[i - 1] || null,
+    },
   }));
 }
 
-const { post } = Astro.props as { post: PostEntry };
-const { Content } = await post.render();
+const { post, prev, next } = Astro.props as {
+  post: PostEntry;
+  prev: PostEntry | null;
+  next: PostEntry | null;
+};
+const { Content, headings } = await post.render();
 
-// 날짜 포맷팅
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('ko-KR', {
@@ -27,10 +42,12 @@ const formatDate = (dateString: string) => {
     day: 'numeric',
   });
 };
+
+const tocHeadings = headings.filter((h) => h.depth <= 3);
 ---
 
 <Layout
-  title={`${post.data.title} - Minkyu's Tech Blog`}
+  title={`${post.data.title} - Minkyu Han`}
   description={post.data.description}
   article={true}
   publishedTime={post.data.date}
@@ -38,47 +55,119 @@ const formatDate = (dateString: string) => {
 >
   <Header />
 
-  <main class={styles.postMain}>
-    <article class={styles.postArticle}>
-      <div class="container">
-        <div class={styles.postHeader}>
-          {post.data.category && <span class={styles.postCategory}>{post.data.category}</span>}
-          <h1 class={styles.postTitle}>{post.data.title}</h1>
-          <p class={styles.postDescription}>{post.data.description}</p>
+  <!-- Progress Bar -->
+  <div class={styles.progressBar} id="progress-bar"></div>
 
-          <div class={styles.postMeta}>
-            <time class={styles.postDate}>{formatDate(post.data.date)}</time>
-            {
-              post.data.readTime && (
-                <>
-                  <span class={styles.separator}>·</span>
-                  <span class="read-time">{post.data.readTime}</span>
-                </>
-              )
-            }
+  <main class={styles.main}>
+    <div class="container">
+      <!-- Post Header -->
+      <header class={styles.postHeader}>
+        {post.data.category && (
+          <span class={`${styles.category} reveal`}>{post.data.category}</span>
+        )}
+        <h1 class={`${styles.postTitle} reveal`} data-delay="0.1">{post.data.title}</h1>
+        <div class={`${styles.meta} reveal`} data-delay="0.2">
+          <time>{formatDate(post.data.date)}</time>
+          {post.data.readTime && (
+            <>
+              <span class={styles.dot}>&middot;</span>
+              <span>{post.data.readTime}</span>
+            </>
+          )}
+        </div>
+        {post.data.tags && post.data.tags.length > 0 && (
+          <div class={`${styles.tags} reveal`} data-delay="0.3">
+            {post.data.tags.map((tag: string) => (
+              <span class={styles.tag}>#{tag}</span>
+            ))}
           </div>
+        )}
+      </header>
 
-          {
-            post.data.tags && post.data.tags.length > 0 && (
-              <div class={styles.postTags}>
-                {post.data.tags.map((tag: string) => (
-                  <span class={styles.tag}>#{tag}</span>
-                ))}
-              </div>
-            )
-          }
-        </div>
-
-        <div class={styles.postContent}>
+      <!-- Content + TOC -->
+      <div class={styles.contentLayout}>
+        <article class={`${styles.content} reveal`} data-delay="0.3">
           <Content />
-        </div>
+        </article>
 
-        <div class={styles.postFooter}>
-          <a href="/posts" class={styles.backLink}>← 모든 글 보기</a>
-        </div>
+        {tocHeadings.length > 0 && (
+          <aside class={styles.toc}>
+            <nav class={styles.tocNav}>
+              <p class={styles.tocTitle}>On this page</p>
+              <ul class={styles.tocList}>
+                {tocHeadings.map((heading) => (
+                  <li
+                    class={`${styles.tocItem} ${heading.depth === 3 ? styles.tocSub : ''}`}
+                  >
+                    <a href={`#${heading.slug}`} class={styles.tocLink}>
+                      {heading.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        )}
       </div>
-    </article>
+
+      <!-- Prev/Next Navigation -->
+      <nav class={styles.postNav}>
+        {prev ? (
+          <a href={`/posts/${prev.slug}`} class={styles.navItem}>
+            <span class={styles.navLabel}>&larr; Previous</span>
+            <span class={styles.navTitle}>{prev.data.title}</span>
+          </a>
+        ) : <div />}
+        {next ? (
+          <a href={`/posts/${next.slug}`} class={`${styles.navItem} ${styles.navNext}`}>
+            <span class={styles.navLabel}>Next &rarr;</span>
+            <span class={styles.navTitle}>{next.data.title}</span>
+          </a>
+        ) : <div />}
+      </nav>
+    </div>
   </main>
 
   <Footer />
 </Layout>
+
+<script>
+  function initPostDetail() {
+    // Progress bar
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = `${progress}%`;
+      });
+    }
+
+    // Active TOC highlight
+    const tocLinks = document.querySelectorAll('[class*="tocLink"]');
+    const headings = document.querySelectorAll('article h2, article h3');
+
+    if (tocLinks.length > 0 && headings.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              tocLinks.forEach((link) => link.classList.remove('active'));
+              const activeLink = document.querySelector(
+                `[class*="tocLink"][href="#${entry.target.id}"]`
+              );
+              if (activeLink) activeLink.classList.add('active');
+            }
+          });
+        },
+        { rootMargin: '-80px 0px -80% 0px' }
+      );
+
+      headings.forEach((h) => observer.observe(h));
+    }
+  }
+
+  initPostDetail();
+  document.addEventListener('astro:after-swap', initPostDetail);
+</script>
