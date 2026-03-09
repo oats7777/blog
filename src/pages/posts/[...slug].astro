@@ -147,6 +147,7 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
     // Active TOC highlight
     const tocLinks = document.querySelectorAll('[class*="tocLink"]');
     const headings = document.querySelectorAll('article h2, article h3');
+    const tocContainer = document.querySelector('[class*="toc"]');
 
     if (tocLinks.length > 0 && headings.length > 0) {
       const observer = new IntersectionObserver(
@@ -157,7 +158,13 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
               const activeLink = document.querySelector(
                 `[class*="tocLink"][href="#${entry.target.id}"]`
               );
-              if (activeLink) activeLink.classList.add('active');
+              if (activeLink) {
+                activeLink.classList.add('active');
+                // TOC 컨테이너 내에서 active 항목이 보이도록 스크롤
+                if (tocContainer) {
+                  activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+              }
             }
           });
         },

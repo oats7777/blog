@@ -97,6 +97,19 @@
           ring.classList.remove('hover');
         });
       });
+
+      // 캔버스 영역에서는 커스텀 커서 숨기기
+      const canvasZones = document.querySelectorAll('[data-no-custom-cursor]');
+      canvasZones.forEach((zone) => {
+        zone.addEventListener('mouseenter', () => {
+          dot.style.display = 'none';
+          ring.style.display = 'none';
+        });
+        zone.addEventListener('mouseleave', () => {
+          dot.style.display = '';
+          ring.style.display = '';
+        });
+      });
     }
     addHoverListeners();
 

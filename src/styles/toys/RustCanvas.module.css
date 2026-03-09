@@ -172,6 +172,11 @@
   cursor: crosshair;
 }
 
+/* 캔버스 영역에서는 시스템 커서 사용 (body cursor:none 오버라이드) */
+.container {
+  cursor: auto;
+}
+
 @media (max-width: 640px) {
   .container {
     padding: 1rem;

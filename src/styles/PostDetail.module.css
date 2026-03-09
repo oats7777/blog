@@ -200,6 +200,28 @@
   position: sticky;
   top: 6rem;
   align-self: start;
+  max-height: calc(100vh - 8rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.toc::-webkit-scrollbar {
+  width: 3px;
+}
+
+.toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toc::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.toc::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
 
 .tocNav {

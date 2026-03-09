@@ -2,7 +2,7 @@
 import styles from '@/styles/toys/RustCanvas.module.css';
 ---
 
-<div class={styles.container}>
+<div class={styles.container} data-no-custom-cursor>
   <div class={styles.toolbar}>
     <div class={styles.toolGroup}>
       <label>도구</label>
@@ -225,10 +225,14 @@ import styles from '@/styles/toys/RustCanvas.module.css';
   function setupCanvasSize(canvasEl: HTMLCanvasElement): number {
     const dpr = window.devicePixelRatio || 1;
 
+    // 버퍼 해상도는 논리 크기 * dpr
     canvasEl.width = LOGICAL_WIDTH * dpr;
     canvasEl.height = LOGICAL_HEIGHT * dpr;
-    canvasEl.style.width = `${LOGICAL_WIDTH}px`;
-    canvasEl.style.height = `${LOGICAL_HEIGHT}px`;
+
+    // CSS width:100% + height:auto로 컨테이너에 맞춤
+    // 인라인 스타일 제거하여 CSS가 제어하도록
+    canvasEl.style.removeProperty('width');
+    canvasEl.style.removeProperty('height');
 
     return dpr;
   }
@@ -719,5 +723,14 @@ import styles from '@/styles/toys/RustCanvas.module.css';
     updateZoomDisplay(canvas);
   }
 
-  initRustCanvas();
+  // ViewTransitions 네비게이션 후에도 재초기화
+  document.addEventListener('astro:page-load', () => {
+    if (document.getElementById('rust-canvas')) {
+      initRustCanvas();
+    }
+  });
+  // 모듈 로드 시점에 이미 astro:page-load가 지났을 수 있으므로 즉시 실행
+  if (document.getElementById('rust-canvas')) {
+    initRustCanvas();
+  }
 </script>

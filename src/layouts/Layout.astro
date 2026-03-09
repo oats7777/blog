@@ -129,7 +129,44 @@ const ogImageUrl = image.startsWith('http') ? image : new URL(image, siteUrl).to
   <body>
     <CustomCursor />
     <slot />
-    <script src="../scripts/scroll-reveal.ts"></script>
+    <script is:inline>
+      function initScrollReveal() {
+        const reveals = document.querySelectorAll('.reveal:not(.visible)');
+        if (reveals.length === 0) return;
+
+        // 뷰포트 안의 요소는 즉시 보이게 (동기적)
+        const deferred = [];
+        reveals.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight + 50) {
+            el.style.transitionDelay = (el.dataset.delay || '0') + 's';
+            el.classList.add('visible');
+          } else {
+            deferred.push(el);
+          }
+        });
+
+        // 뷰포트 아래 요소만 IO로 처리
+        if (deferred.length === 0) return;
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const el = entry.target;
+                el.style.transitionDelay = (el.dataset.delay || '0') + 's';
+                el.classList.add('visible');
+                observer.unobserve(el);
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        );
+        deferred.forEach((el) => observer.observe(el));
+      }
+
+      document.addEventListener('astro:page-load', initScrollReveal);
+      initScrollReveal();
+    </script>
   </body>
 </html>
 
