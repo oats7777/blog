@@ -1,0 +1,108 @@
+---
+// Custom cursor - disabled on touch devices via CSS/JS
+---
+
+<div id="cursor-dot" class="cursor-dot"></div>
+<div id="cursor-ring" class="cursor-ring"></div>
+
+<style is:global>
+  .cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+  }
+
+  .cursor-ring {
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid rgba(var(--color-accent-rgb), 0.5);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+  }
+
+  .cursor-dot.hover {
+    width: 4px;
+    height: 4px;
+  }
+
+  .cursor-ring.hover {
+    width: 80px;
+    height: 80px;
+    border-color: rgba(var(--color-accent-rgb), 0.3);
+  }
+
+  @media (pointer: coarse) {
+    .cursor-dot, .cursor-ring {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  function initCursor() {
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    if (!dot || !ring) return;
+
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      dot.style.display = 'none';
+      ring.style.display = 'none';
+      return;
+    }
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let ringX = 0;
+    let ringY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.left = `${mouseX}px`;
+      dot.style.top = `${mouseY}px`;
+    });
+
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.left = `${ringX}px`;
+      ring.style.top = `${ringY}px`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    function addHoverListeners() {
+      const hoverTargets = document.querySelectorAll('a, button, [data-cursor-hover]');
+      hoverTargets.forEach((el) => {
+        el.addEventListener('mouseenter', () => {
+          dot.classList.add('hover');
+          ring.classList.add('hover');
+        });
+        el.addEventListener('mouseleave', () => {
+          dot.classList.remove('hover');
+          ring.classList.remove('hover');
+        });
+      });
+    }
+    addHoverListeners();
+
+    document.addEventListener('astro:after-swap', addHoverListeners);
+  }
+
+  initCursor();
+  document.addEventListener('astro:after-swap', initCursor);
+</script>
