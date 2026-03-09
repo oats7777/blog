@@ -3,25 +3,14 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import BlogCard from '@/components/BlogCard.astro';
 import styles from '@/styles/PostsList.module.css';
 
 type PostEntry = CollectionEntry<'posts'>;
-type BlogCardProps = {
-  title: string;
-  description: string;
-  slug: string;
-  date: string;
-  category?: string;
-  readTime?: string;
-  tags: string[];
-};
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts');
   const publishedPosts = allPosts.filter((post: PostEntry) => !post.data.draft);
 
-  // 모든 카테고리를 수집
   const categories = [
     ...new Set(publishedPosts.map((post: PostEntry) => post.data.category).filter(Boolean)),
   ] as string[];
@@ -34,113 +23,81 @@ export async function getStaticPaths() {
 
 const { category } = Astro.props as { category: string };
 
-// Content Collections에서 모든 포스트 가져오기
 const allPosts = await getCollection('posts');
 
-// 현재 카테고리의 포스트만 필터링
-const categoryPosts: BlogCardProps[] = allPosts
-  .filter((post: PostEntry) => !post.data.draft && post.data.category === category)
+const allPublished = allPosts
+  .filter((post: PostEntry) => !post.data.draft)
   .sort((a: PostEntry, b: PostEntry) => {
     const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     if (dateDiff !== 0) return dateDiff;
     return (a.data.order ?? 0) - (b.data.order ?? 0);
-  })
-  .map(
-    (post: PostEntry): BlogCardProps => ({
-      title: post.data.title,
-      description: post.data.description,
-      slug: post.slug,
-      date: post.data.date,
-      category: post.data.category,
-      readTime: post.data.readTime,
-      tags: post.data.tags,
-    })
-  );
+  });
 
-// 전체 포스트에서 카테고리별 개수 계산 (사이드바용)
-const allPublishedPosts: BlogCardProps[] = allPosts
-  .filter((post: PostEntry) => !post.data.draft)
-  .map(
-    (post: PostEntry): BlogCardProps => ({
-      title: post.data.title,
-      description: post.data.description,
-      slug: post.slug,
-      date: post.data.date,
-      category: post.data.category,
-      readTime: post.data.readTime,
-      tags: post.data.tags,
-    })
-  );
+const posts = allPublished.filter((post: PostEntry) => post.data.category === category);
 
-const categoryCount = allPublishedPosts.reduce((acc: Record<string, number>, post: BlogCardProps) => {
-  if (post.category) {
-    acc[post.category] = (acc[post.category] || 0) + 1;
+const categoryCount = allPublished.reduce((acc: Record<string, number>, post: PostEntry) => {
+  if (post.data.category) {
+    acc[post.data.category] = (acc[post.data.category] || 0) + 1;
   }
   return acc;
 }, {});
 
 const categories = Object.keys(categoryCount).sort();
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.');
+};
 ---
 
-<Layout
-  title={`${category} 글 목록 - Minkyu's Tech Blog`}
-  description={`${category} 카테고리의 모든 글을 확인해보세요.`}
->
+<Layout title={`${category} - Blog - Minkyu Han`} description={`${category} 카테고리의 글 목록입니다.`}>
   <Header />
 
-  <main class={styles.postsMain}>
+  <main class={styles.main}>
     <div class="container">
-      <div class={styles.postsHeader}>
-        <h1 class={styles.postsTitle}>{category} 글</h1>
-        <p class={styles.postsDescription}>
-          <strong>{categoryPosts.length}개</strong>의 {category} 관련 글이 있습니다.
+      <!-- Hero -->
+      <section class={styles.hero}>
+        <p class="section-label reveal">Blog</p>
+        <h1 class={`${styles.title} reveal`} data-delay="0.1">Writings & Thoughts</h1>
+        <p class={`${styles.desc} reveal`} data-delay="0.2">
+          프론트엔드 개발, 아키텍처, 그리고 창작에 대한 기록
         </p>
+      </section>
+
+      <!-- Category Filter -->
+      <div class={`${styles.filters} reveal`} data-delay="0.3">
+        <a href="/posts" class={styles.filterPill}>
+          All ({allPublished.length})
+        </a>
+        {categories.map((cat: string) => (
+          <a
+            href={`/posts/category/${cat.toLowerCase()}`}
+            class={`${styles.filterPill} ${cat === category ? styles.active : ''}`}
+          >
+            {cat} ({categoryCount[cat]})
+          </a>
+        ))}
       </div>
 
-      <div class={styles.postsLayout}>
-        <!-- 사이드바 -->
-        <aside class={styles.postsSidebar}>
-          <div class={styles.sidebarSection}>
-            <h3>카테고리</h3>
-            <ul class={styles.categoryList}>
-              <li>
-                <a href="/posts" class={styles.categoryLink}>
-                  전체 <span class={styles.count}>({allPublishedPosts.length})</span>
-                </a>
-              </li>
-              {
-                categories.map((cat: string) => (
-                  <li>
-                    <a
-                      href={`/posts/category/${cat.toLowerCase()}`}
-                      class={`${styles.categoryLink} ${cat === category ? 'active' : ''}`}
-                    >
-                      {cat} <span class={styles.count}>({categoryCount[cat]})</span>
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
-        </aside>
-
-        <!-- 포스트 목록 -->
-        <div class={styles.postsContent}>
-          {
-            categoryPosts.length > 0 ? (
-              <div class={styles.postsGrid}>
-                {categoryPosts.map((post: BlogCardProps) => (
-                  <BlogCard {...post} />
-                ))}
-              </div>
-            ) : (
-              <div class={styles.noPosts}>
-                <h3>{category} 카테고리에 글이 없습니다</h3>
-                <p>다른 카테고리를 확인해보세요!</p>
-              </div>
-            )
-          }
-        </div>
+      <!-- Post List -->
+      <div class={styles.list}>
+        {posts.map((post: PostEntry, i: number) => (
+          <a
+            href={`/posts/${post.slug}`}
+            class={`${styles.item} reveal`}
+            data-delay={String(Math.min(i * 0.05, 0.5))}
+          >
+            <span class={styles.date}>{formatDate(post.data.date)}</span>
+            {post.data.category && (
+              <span class={styles.category}>{post.data.category}</span>
+            )}
+            <div class={styles.itemContent}>
+              <span class={styles.itemTitle}>{post.data.title}</span>
+              <span class={styles.itemDesc}>{post.data.description}</span>
+            </div>
+            <span class={styles.arrow}>&rarr;</span>
+          </a>
+        ))}
       </div>
     </div>
   </main>
