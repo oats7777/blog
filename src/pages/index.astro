@@ -2,111 +2,115 @@
 import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import BlogCard from '@/components/BlogCard.astro';
+import Marquee from '@/components/Marquee.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import styles from '@/styles/Home.module.css';
 
-// 타입 정의
 type PostEntry = CollectionEntry<'posts'>;
-type BlogCardProps = {
-  title: string;
-  description: string;
-  slug: string;
-  date: string;
-  category?: string;
-  readTime?: string;
-  tags: string[];
-};
+type ToyEntry = CollectionEntry<'toys'>;
 
-// Content Collections에서 포스트 가져오기
+// Get recent posts
 const allPosts = await getCollection('posts');
-
-// 전체 발행된 포스트
-const allPublishedPosts = allPosts.filter((post: PostEntry) => !post.data.draft);
-
-// 날짜순으로 정렬하고 최신 3개 포스트만 가져오기
-const recentPosts: BlogCardProps[] = allPublishedPosts
+const recentPosts = allPosts
+  .filter((post: PostEntry) => !post.data.draft)
   .sort((a: PostEntry, b: PostEntry) => {
     const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     if (dateDiff !== 0) return dateDiff;
     return (a.data.order ?? 0) - (b.data.order ?? 0);
   })
-  .slice(0, 3)
-  .map(
-    (post: PostEntry): BlogCardProps => ({
-      title: post.data.title,
-      description: post.data.description,
-      slug: post.slug,
-      date: post.data.date,
-      category: post.data.category,
-      readTime: post.data.readTime,
-      tags: post.data.tags,
-    })
-  );
+  .slice(0, 3);
+
+// Get toys for Selected Works
+const allToys = await getCollection('toys');
+const toys = allToys
+  .filter((toy: ToyEntry) => !toy.data.draft)
+  .sort((a: ToyEntry, b: ToyEntry) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.');
+};
 ---
 
-<Layout title="Minkyu's Tech Blog - 프론트엔드 개발 인사이트">
+<Layout title="Minkyu Han - Frontend Developer & Creative Engineer">
   <Header />
 
   <main>
     <!-- Hero Section -->
     <section class={styles.hero}>
       <div class={`container ${styles.heroContainer}`}>
-        <div class="hero-content">
-          <h1 class={styles.heroTitle}>
-            안녕하세요! 👋<br />
-            저는 <span class={styles.highlight}>Minkyu</span>입니다
-          </h1>
-          <p class={styles.heroDescription}>
-            프론트엔드 개발자로서 저의 경험을 공유합니다.<br />
-          </p>
-          <div class={styles.heroActions}>
-            <a href="/posts" class={`${styles.btn} ${styles.btnPrimary}`}>최신 글 보기</a>
-            <a href="/about" class={`${styles.btn} ${styles.btnSecondary}`}>소개 보기</a>
-          </div>
-        </div>
-
-        <div class={styles.heroVisual}>
-          <div class={styles.codeSnippet}>
-            <div class={styles.codeHeader}>
-              <span class="code-lang">JavaScript</span>
-            </div>
-            <pre><code>{`const minkyu = {
-  role: 'Frontend Developer',
-  passion: '∞',
-  learning: 'continuous',
-  sharing: true,
-  
-  createAwesome() {
-    return this.passion + 
-           this.learning + 
-           this.sharing;
-  }
-};`}</code></pre>
-          </div>
+        <p class="section-label">Frontend Developer & Creative Engineer</p>
+        <h1 class={styles.heroTitle}>
+          <span class={`${styles.heroLine} reveal`}>I craft digital</span>
+          <span class={`${styles.heroLine} reveal`} data-delay="0.1">experiences with</span>
+          <span class={`${styles.heroLine} reveal`} data-delay="0.2">code & <span class={styles.accent}>creativity</span></span>
+        </h1>
+        <div class={styles.scrollHint}>
+          <span class={styles.scrollArrow}>&darr;</span>
         </div>
       </div>
     </section>
 
-    <!-- Recent Posts Section -->
-    <section class={styles.recentPosts}>
+    <!-- Selected Works -->
+    {toys.length > 0 && (
+      <section class={styles.works}>
+        <div class="container">
+          <p class="section-label reveal">Selected Works</p>
+          <div class={styles.worksList}>
+            {toys.map((toy: ToyEntry, i: number) => (
+              <a
+                href={`/toys/${toy.slug}`}
+                class={`${styles.workItem} reveal`}
+                data-delay={String(i * 0.1)}
+              >
+                <span class={styles.workNumber}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div class={styles.workInfo}>
+                  <h3 class={styles.workTitle}>{toy.data.title}</h3>
+                  <p class={styles.workDesc}>{toy.data.description}</p>
+                </div>
+                <div class={styles.workTags}>
+                  {toy.data.tags.slice(0, 3).map((tag: string) => (
+                    <span class={styles.workTag}>{tag}</span>
+                  ))}
+                </div>
+                <span class={styles.workArrow}>&rarr;</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Latest Posts -->
+    <section class={styles.posts}>
       <div class="container">
-        <div class={styles.sectionHeader}>
-          <h2>최근 글</h2>
-          <a href="/posts" class={styles.viewAll}>모든 글 보기 →</a>
+        <p class="section-label reveal">Latest Writings</p>
+        <div class={styles.postsList}>
+          {recentPosts.map((post: PostEntry, i: number) => (
+            <a
+              href={`/posts/${post.slug}`}
+              class={`${styles.postItem} reveal`}
+              data-delay={String(i * 0.08)}
+            >
+              <span class={styles.postDate}>{formatDate(post.data.date)}</span>
+              {post.data.category && (
+                <span class={styles.postCategory}>{post.data.category}</span>
+              )}
+              <span class={styles.postTitle}>{post.data.title}</span>
+              <span class={styles.postArrow}>&rarr;</span>
+            </a>
+          ))}
         </div>
-
-        <div class={styles.postsGrid}>
-          {
-            recentPosts.length > 0 ? (
-              recentPosts.map((post: BlogCardProps) => <BlogCard {...post} />)
-            ) : (
-              <p class={styles.noPosts}>아직 작성된 글이 없습니다. 첫 번째 글을 작성해보세요!</p>
-            )
-          }
+        <div class={`${styles.viewAll} reveal`} data-delay="0.3">
+          <a href="/posts">View all posts &rarr;</a>
         </div>
       </div>
     </section>
+
+    <!-- Marquee -->
+    <Marquee />
   </main>
 
   <Footer />

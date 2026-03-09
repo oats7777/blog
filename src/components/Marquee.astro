@@ -1,0 +1,55 @@
+---
+const techs = [
+  'React', 'TypeScript', 'Vue.js', 'Next.js', 'Rust',
+  'WebAssembly', 'Astro', 'Node.js', 'Zustand', 'Vite',
+  'Storybook', 'Capacitor', 'Supabase', 'WebGL',
+];
+---
+
+<div class="marquee-wrapper">
+  <div class="marquee-track">
+    {[...techs, ...techs].map((tech) => (
+      <span class="marquee-item">{tech}</span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee-wrapper {
+    overflow: hidden;
+    padding: 2rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+
+  .marquee-wrapper:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  .marquee-item {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    opacity: 0.4;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: opacity 0.3s ease;
+  }
+
+  .marquee-wrapper:hover .marquee-item {
+    opacity: 0.7;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+</style>
