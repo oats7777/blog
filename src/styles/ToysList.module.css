@@ -1,69 +1,39 @@
-.toysMain {
-  padding: 2rem 0 4rem;
-  min-height: 70vh;
+.main {
+  padding-top: 8rem;
 }
 
-.toysHeader {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--color-border);
+.hero {
+  padding: 4rem 0 3rem;
 }
 
-.toysTitle {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  color: var(--color-text);
+.title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-top: 0.5rem;
 }
 
-.toysDescription {
-  font-size: 1.1rem;
+.desc {
+  font-size: 1.125rem;
   color: var(--color-text-secondary);
+  margin-top: 0.5rem;
 }
 
-.toysGrid {
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding-bottom: 4rem;
 }
 
-.noToys {
+.empty {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 4rem 0;
   color: var(--color-text-muted);
 }
 
-.noToys h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--color-text-secondary);
-}
-
-.noToys p {
-  font-size: 1.1rem;
-}
-
 @media (max-width: 768px) {
-  .toysMain {
-    padding: 1rem 0 3rem;
-  }
-
-  .toysTitle {
-    font-size: 2rem;
-  }
-
-  .toysGrid {
+  .grid {
     grid-template-columns: 1fr;
-  }
-
-  .noToys {
-    padding: 3rem 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .toysGrid {
-    gap: 1rem;
   }
 }

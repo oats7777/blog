@@ -5,12 +5,10 @@ import Footer from '@/components/Footer.astro';
 import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/Header.astro';
 
-// 아일랜드 컴포넌트들
 import RustCanvas from '@/components/toys/RustCanvas.astro';
 
 type ToyEntry = CollectionEntry<'toys'>;
 
-// 아일랜드 컴포넌트 매핑
 const toyComponents: Record<string, any> = {
   'rust-canvas': RustCanvas,
 };
@@ -26,22 +24,12 @@ export async function getStaticPaths() {
 const { toy } = Astro.props as { toy: ToyEntry };
 const { Content } = await toy.render();
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-// 아일랜드 컴포넌트가 있는지 확인
 const ToyComponent = toyComponents[toy.slug];
 const isIsland = !!ToyComponent;
 ---
 
 <Layout
-  title={`${toy.data.title} - Minkyu's Tech Blog`}
+  title={`${toy.data.title} - Minkyu Han`}
   description={toy.data.description}
   article={true}
   publishedTime={toy.data.date}
@@ -49,64 +37,55 @@ const isIsland = !!ToyComponent;
 >
   <Header />
 
-  <main class={styles.toyMain}>
-    <article class={styles.toyArticle}>
-      <div class="container">
-        <div class={styles.toyHeader}>
-          <div class={styles.toyBadges}>
-            <span class={styles.toyBadge}>Toy</span>
-            <span class={styles.techBadge}>{toy.data.techStack}</span>
-          </div>
-          <h1 class={styles.toyTitle}>{toy.data.title}</h1>
-          <p class={styles.toyDescription}>{toy.data.description}</p>
+  <main class={styles.main}>
+    <div class="container">
+      <a href="/toys" class={`${styles.backLink} reveal`}>&larr; Back to Playground</a>
 
-          <div class={styles.toyMeta}>
-            <time class={styles.toyDate}>{formatDate(toy.data.date)}</time>
-          </div>
-
-          {
-            toy.data.tags && toy.data.tags.length > 0 && (
-              <div class={styles.toyTags}>
-                {toy.data.tags.map((tag: string) => (
-                  <span class={styles.tag}>#{tag}</span>
-                ))}
-              </div>
-            )
-          }
+      <!-- Info Card -->
+      <div class={`${styles.infoCard} reveal`} data-delay="0.1">
+        <div class={styles.infoTags}>
+          <span class={styles.techBadge}>{toy.data.techStack}</span>
+          {toy.data.tags.map((tag: string) => (
+            <span class={styles.tag}>#{tag}</span>
+          ))}
         </div>
+        <h1 class={styles.title}>{toy.data.title}</h1>
+        <p class={styles.desc}>{toy.data.description}</p>
+      </div>
 
-        <div class={styles.embedSection}>
+      <!-- Embed Area -->
+      <div class={`${styles.embedWrapper} reveal`} data-delay="0.2">
+        <div class={styles.embedBar}>
+          <div class={styles.dots}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class={styles.embedTitle}>{toy.data.title}</span>
+        </div>
+        <div class={styles.embedContent}>
           {isIsland ? (
-            <!-- 아일랜드 컴포넌트: 직접 렌더링 -->
             <ToyComponent />
           ) : (
-            <!-- 폴백: iframe으로 외부 URL 임베드 -->
-            <>
-              <div class={styles.embedContainer}>
-                <iframe
-                  src={toy.data.embedUrl}
-                  title={toy.data.title}
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                ></iframe>
-              </div>
-              <a href={toy.data.embedUrl} target="_blank" rel="noopener noreferrer" class={styles.embedLink}>
-                새 창에서 열기 →
-              </a>
-            </>
+            <iframe
+              src={toy.data.embedUrl}
+              title={toy.data.title}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class={styles.iframe}
+            ></iframe>
           )}
         </div>
+      </div>
 
-        <div class={styles.toyContent}>
+      <!-- Article Content -->
+      {toy.body && toy.body.trim().length > 0 && (
+        <div class={`${styles.article} reveal`} data-delay="0.3">
           <Content />
         </div>
-
-        <div class={styles.toyFooter}>
-          <a href="/toys" class={styles.backLink}>← 모든 Toys 보기</a>
-        </div>
-      </div>
-    </article>
+      )}
+    </div>
   </main>
 
   <Footer />
