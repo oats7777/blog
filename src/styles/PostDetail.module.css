@@ -12,6 +12,7 @@
 
 .main {
   padding-top: 8rem;
+  overflow-x: hidden;
 }
 
 /* Post Header */
@@ -84,6 +85,7 @@
 /* Article Content */
 .content {
   max-width: var(--content-max-width);
+  min-width: 0;
   font-size: 1.125rem;
   line-height: 1.8;
   color: #cccccc;
