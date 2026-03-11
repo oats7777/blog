@@ -87,6 +87,8 @@
   font-size: 1.125rem;
   line-height: 1.8;
   color: #cccccc;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .content :global(h2) {
@@ -170,6 +172,9 @@
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.9375rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .content :global(th) {
@@ -371,6 +376,11 @@
 
   .content :global(table) {
     font-size: 0.8125rem;
+  }
+
+  .content :global(th),
+  .content :global(td) {
+    padding: 0.5rem 0.625rem;
   }
 
   .toc {
