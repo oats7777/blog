@@ -160,9 +160,14 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
               );
               if (activeLink) {
                 activeLink.classList.add('active');
-                // TOC 컨테이너 내에서 active 항목이 보이도록 스크롤
+                // TOC 컨테이너 내에서만 스크롤 (페이지 스크롤에 영향 없도록)
                 if (tocContainer) {
-                  activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                  const tocRect = tocContainer.getBoundingClientRect();
+                  const linkRect = activeLink.getBoundingClientRect();
+                  if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                    tocContainer.scrollTop +=
+                      linkRect.top - tocRect.top - tocRect.height / 2 + linkRect.height / 2;
+                  }
                 }
               }
             }
